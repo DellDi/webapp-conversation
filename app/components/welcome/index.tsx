@@ -25,6 +25,13 @@ export type IWelcomeProps = {
   onInputsChange: (inputs: Record<string, any>) => void
 }
 
+// 获取当前页面的url中的userName参数
+export const getUserNameFromUrl = () => {
+  const url = new URL(globalThis.location.href)
+  const userName = url.searchParams.get('userName') || '客户'
+  return userName
+}
+
 const Welcome: FC<IWelcomeProps> = ({
   conversationName,
   hasSetInputs,
@@ -36,35 +43,46 @@ const Welcome: FC<IWelcomeProps> = ({
   savedInputs,
   onInputsChange,
 }) => {
+  const userName = getUserNameFromUrl()
   const { t } = useTranslation()
   const hasVar = promptConfig.prompt_variables.length > 0
   const [isFold, setIsFold] = useState<boolean>(true)
   const [inputs, setInputs] = useState<Record<string, any>>((() => {
     if (hasSetInputs)
       return savedInputs
-
     const res: Record<string, any> = {}
     if (promptConfig) {
       promptConfig.prompt_variables.forEach((item) => {
-        res[item.key] = ''
+        res[item.key] = userName
       })
     }
     return res
   })())
+
+  const [needsClick, setNeedsClick] = useState(false);
+
   useEffect(() => {
     if (!savedInputs) {
       const res: Record<string, any> = {}
       if (promptConfig) {
         promptConfig.prompt_variables.forEach((item) => {
-          res[item.key] = ''
+          res[item.key] = userName
         })
       }
       setInputs(res)
+      setNeedsClick(true);
     }
     else {
       setInputs(savedInputs)
     }
   }, [savedInputs])
+
+  useEffect(() => {
+    if (needsClick) {
+      handleChat();
+      setNeedsClick(false);
+    }
+  }, [needsClick]); // 依赖项列表中只有inputs
 
   const highLightPromoptTemplate = (() => {
     if (!promptConfig)
@@ -142,7 +160,6 @@ const Welcome: FC<IWelcomeProps> = ({
   const handleChat = () => {
     if (!canChat())
       return
-
     onStartChat(inputs)
   }
 
@@ -331,10 +348,10 @@ const Welcome: FC<IWelcomeProps> = ({
               </div>
               : <div>
               </div>}
-            <a className='flex items-center pr-3 space-x-3' href="https://dify.ai/" target="_blank">
+            {/* <a className='flex items-center pr-3 space-x-3' href="https://dify.ai/" target="_blank">
               <span className='uppercase'>{t('app.chat.powerBy')}</span>
               <FootLogo />
-            </a>
+            </a> */}
           </div>
         )}
       </div>
