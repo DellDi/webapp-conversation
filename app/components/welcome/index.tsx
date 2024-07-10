@@ -332,7 +332,7 @@ const Welcome: FC<IWelcomeProps> = ({
         }
 
         {/* Has set inputs */}
-        {hasSetInputs && renderHasSetInputs()}
+        {/* {hasSetInputs && renderHasSetInputs()} */}
 
         {/* foot */}
         {!hasSetInputs && (
