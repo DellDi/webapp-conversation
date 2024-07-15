@@ -10,6 +10,7 @@ export type AppIconProps = {
   icon?: string; // 现在将用于定义图标路径
   background?: string;
   className?: string;
+  innerIcon?: JSX.Element
 };
 
 const AppIcon: FC<AppIconProps> = ({
@@ -18,6 +19,7 @@ const AppIcon: FC<AppIconProps> = ({
   background,
   className,
   icon = defaultIconUrl, // 添加默认图标作为 fallback
+  innerIcon
 }) => {
   const effectiveIcon = icon || defaultIconUrl;
 

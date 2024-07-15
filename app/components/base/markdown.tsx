@@ -6,11 +6,44 @@ import RehypeKatex from 'rehype-katex'
 import RemarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atelierHeathLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
-
+import { BarChart, LineChart, PieChart } from '../chart'
 export function Markdown(props: { content: string }) {
+  let isChartRender
+  let jsonRes = {
+    chartType: 'line',
+    targetName: '',
+    precinctName: '',
+    data: [
+      {
+        name: '新安明珠',
+        value: 1000.22,
+        currentDate: '2024'
+      },
+      {
+        name: '未来中心',
+        value: 9912.22,
+        currentDate: '2024'
+      },
+      {
+        name: '金色蓝庭',
+        value: 1120.22,
+        currentDate: '2024'
+      }
+    ]
+  }
+
+  try {
+    jsonRes = JSON.parse(props.content)
+    isChartRender = true
+  } catch (error) {
+    isChartRender = false
+  }
+  const data = jsonRes.data
+  console.log("🚀 ~ Markdown ~ data:", data)
+  const precinctName = jsonRes.precinctName
   return (
     <div className="markdown-body">
-      <ReactMarkdown
+      {!isChartRender && <ReactMarkdown
         remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
         rehypePlugins={[
           RehypeKatex,
@@ -39,7 +72,21 @@ export function Markdown(props: { content: string }) {
         linkTarget={'_blank'}
       >
         {props.content}
-      </ReactMarkdown>
+      </ReactMarkdown>}
+
+      {isChartRender && (
+        <div className='grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-2 bg-white'>
+          {jsonRes.chartType === 'line' && <LineChart chartData={{ data: data }} basicInfo={{
+            title: `【${precinctName}】-` + '折线图',
+          }} chartType={'line'} />}
+          {jsonRes.chartType === 'bar' && <BarChart chartData={{ data: data }} basicInfo={{
+            title: `【${precinctName}】-` + '柱状图',
+          }} chartType={'bar'} />}
+          {jsonRes.chartType === 'pie' && <PieChart chartData={{ data: data }} basicInfo={{
+            title: `【${precinctName}】-` + '饼图',
+          }} chartType={'pie'} />}
+        </div>
+      )}
     </div>
   )
 }
