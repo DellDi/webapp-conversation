@@ -12,6 +12,7 @@ import type { ChatItem, VisionFile, VisionSettings } from '@/types/app'
 import { TransferMethod } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
 import Toast from '@/app/components/base/toast'
+import TryToAsk from './try-to-ask'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
@@ -116,6 +117,8 @@ const Chat: FC<IChatProps> = ({
       e.preventDefault()
     }
   }
+
+  // const hasTryToAsk = config?.suggested_questions_after_answer?.enabled && !!suggestedQuestions?.length && onSend
 
   return (
     <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
