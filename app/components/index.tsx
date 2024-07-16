@@ -22,6 +22,8 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import SuggestedQuestions from './chat/answer/suggested-questions'
+import TryToAsk from './chat/try-to-ask'
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -35,6 +37,7 @@ const Main: FC = () => {
   const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
   const [isUnknwonReason, setIsUnknwonReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
+  // const [suggestedQuestions, setSuggestedQuestions] = useState<string[] | null>(null)
   const [inited, setInited] = useState<boolean>(false)
   // in mobile, show sidebar by click button
   const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
@@ -213,6 +216,10 @@ const Main: FC = () => {
     return []
   }
 
+  // 新增建议功能
+  const [hasSuggested, setSuggested, getSuggested] = useGetState(false)
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([])
+
   // init
   useEffect(() => {
     if (!hasSetAppConfig) {
@@ -229,7 +236,11 @@ const Main: FC = () => {
         const isNotNewConversation = conversations.some(item => item.id === _conversationId)
 
         // fetch new conversation info
-        const { user_input_form, opening_statement: introduction, file_upload, system_parameters }: any = appParams
+        const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions, suggested_questions_after_answer }: any = appParams
+
+        setSuggestedQuestions(suggested_questions)
+        setSuggested(suggested_questions_after_answer.enabled)
+
         setLocaleOnClient(APP_INFO.default_language, true)
         setNewConversationInfo({
           name: t('app.chat.newChatDefaultName'),
@@ -288,13 +299,13 @@ const Main: FC = () => {
     return true
   }
 
+
+
   const [controlFocus, setControlFocus] = useState(0)
-  const [openingSuggestedQuestions, setOpeningSuggestedQuestions] = useState<string[]>([])
   const [messageTaskId, setMessageTaskId] = useState('')
   const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
   const [isResponsingConIsCurrCon, setIsResponsingConCurrCon, getIsResponsingConIsCurrCon] = useGetState(true)
   const [userQuery, setUserQuery] = useState('')
-
   const updateCurrentQA = ({
     responseItem,
     questionId,
@@ -609,6 +620,9 @@ const Main: FC = () => {
 
   if (!APP_ID || !APP_INFO || !promptConfig)
     return <Loading type='app' />
+
+
+  const hasTryToAsk = hasSuggested && !!suggestedQuestions?.length
 
   return (
     <div className='bg-gray-100'>

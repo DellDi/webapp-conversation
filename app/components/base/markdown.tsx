@@ -8,6 +8,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atelierHeathLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 import { BarChart, LineChart, PieChart } from '../chart'
 export function Markdown(props: { content: string }) {
+  console.log("🚀 ~ Markdown ~ props:", props)
   let isChartRender
   let jsonRes = {
     chartType: 'line',
@@ -31,19 +32,26 @@ export function Markdown(props: { content: string }) {
       }
     ]
   }
-
+  let chartStr, mkStr
+  let contentArr = props.content.split('---图表信息如下---')
+  if (contentArr.length > 1) {
+    mkStr = contentArr[0]
+    chartStr = contentArr[1]
+  } else {
+    chartStr = contentArr[0]
+  }
   try {
-    jsonRes = JSON.parse(props.content)
+    jsonRes = JSON.parse(chartStr)
     isChartRender = true
   } catch (error) {
     isChartRender = false
+    mkStr = props.content
   }
   const data = jsonRes.data
-  console.log("🚀 ~ Markdown ~ data:", data)
   const precinctName = jsonRes.precinctName
   return (
     <div className="markdown-body">
-      {!isChartRender && <ReactMarkdown
+      {mkStr && <ReactMarkdown
         remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
         rehypePlugins={[
           RehypeKatex,
@@ -71,7 +79,7 @@ export function Markdown(props: { content: string }) {
         }}
         linkTarget={'_blank'}
       >
-        {props.content}
+        {mkStr}
       </ReactMarkdown>}
 
       {isChartRender && (
