@@ -1,15 +1,15 @@
 import type { FC } from 'react'
 import { memo } from 'react'
 import type { ChatItem } from '@/types/app'
-import { useChatContext } from '../context'
 
 type SuggestedQuestionsProps = {
-  item: ChatItem
+  item: ChatItem,
+  onSend?: (message: string) => void
 }
 const SuggestedQuestions: FC<SuggestedQuestionsProps> = ({
   item,
+  onSend
 }) => {
-  const { onSend } = useChatContext()
   const {
     isOpeningStatement,
     suggestedQuestions,

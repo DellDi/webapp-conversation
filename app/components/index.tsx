@@ -11,7 +11,7 @@ import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
 import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
-import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
+import type { ChatItem, ConversationItem, Feedbacktype, modelConfig, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
 import { setLocaleOnClient } from '@/i18n/client'
@@ -22,8 +22,6 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
-import SuggestedQuestions from './chat/answer/suggested-questions'
-import TryToAsk from './chat/try-to-ask'
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -37,7 +35,6 @@ const Main: FC = () => {
   const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
   const [isUnknwonReason, setIsUnknwonReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
-  // const [suggestedQuestions, setSuggestedQuestions] = useState<string[] | null>(null)
   const [inited, setInited] = useState<boolean>(false)
   // in mobile, show sidebar by click button
   const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
@@ -136,13 +133,13 @@ const Main: FC = () => {
             content: item.query,
             isAnswer: false,
             message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
-
           })
           newChatList.push({
             id: item.id,
             content: item.answer,
             agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
             feedback: item.feedback,
+            suggestedQuestions: item.suggestedQuestions,
             isAnswer: true,
             message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
           })
@@ -196,6 +193,9 @@ const Main: FC = () => {
     }))
   }
 
+  // 新增建议功能
+  const [hasSuggested, setSuggested, getSuggested] = useGetState(false)
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([])
   // sometime introduction is not applied to state
   const generateNewChatListWithOpenstatement = (introduction?: string, inputs?: Record<string, any> | null) => {
     let caculatedIntroduction = introduction || conversationIntroduction || ''
@@ -209,6 +209,7 @@ const Main: FC = () => {
       isAnswer: true,
       feedbackDisabled: true,
       isOpeningStatement: isShowPrompt,
+      suggestedQuestions
     }
     if (caculatedIntroduction)
       return [openstatement]
@@ -216,9 +217,7 @@ const Main: FC = () => {
     return []
   }
 
-  // 新增建议功能
-  const [hasSuggested, setSuggested, getSuggested] = useGetState(false)
-  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([])
+
 
   // init
   useEffect(() => {
@@ -298,8 +297,6 @@ const Main: FC = () => {
     }
     return true
   }
-
-
 
   const [controlFocus, setControlFocus] = useState(0)
   const [messageTaskId, setMessageTaskId] = useState('')
@@ -622,8 +619,12 @@ const Main: FC = () => {
     return <Loading type='app' />
 
 
-  const hasTryToAsk = hasSuggested && !!suggestedQuestions?.length
-
+  const modelConfig: modelConfig = {
+    suggestedQuestions,
+    suggestedQuestionsAfterAnswer: {
+      enabled: hasSuggested
+    }
+  }
   return (
     <div className='bg-gray-100'>
       <Header
@@ -664,6 +665,7 @@ const Main: FC = () => {
               <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
                 <div className='h-full overflow-y-auto' ref={chatListDomRef}>
                   <Chat
+                    modelConfig={modelConfig}
                     chatList={chatList}
                     onSend={handleSend}
                     onFeedback={handleFeedback}

@@ -4,7 +4,7 @@ import React from 'react'
 import { HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import LoadingAnim from '../loading-anim'
-import type { FeedbackFunc } from '../type'
+import type { FeedbackFunc, OnSend } from '../type'
 import s from '../style.module.css'
 import ImageGallery from '../../base/image-gallery'
 import Thought from '../thought'
@@ -14,6 +14,7 @@ import Tooltip from '@/app/components/base/tooltip'
 import WorkflowProcess from '@/app/components/workflow/workflow-process'
 import { Markdown } from '@/app/components/base/markdown'
 import type { Emoji } from '@/types/tools'
+import SuggestedQuestions from './suggested-questions'
 
 const OperationBtn = ({ innerContent, onClick, className }: { innerContent: React.ReactNode; onClick?: () => void; className?: string }) => (
   <div
@@ -58,6 +59,7 @@ type IAnswerProps = {
   item: ChatItem
   feedbackDisabled: boolean
   onFeedback?: FeedbackFunc
+  onSend: OnSend,
   isResponsing?: boolean
   allToolIcons?: Record<string, string | Emoji>
 }
@@ -67,6 +69,7 @@ const Answer: FC<IAnswerProps> = ({
   item,
   feedbackDisabled = false,
   onFeedback,
+  onSend,
   isResponsing,
   allToolIcons,
 }) => {
@@ -193,6 +196,8 @@ const Answer: FC<IAnswerProps> = ({
                   : (
                     <Markdown content={content} />
                   ))}
+
+              <SuggestedQuestions item={item} onSend={onSend} />
             </div>
             <div className='absolute top-[-14px] right-[-14px] flex flex-row justify-end gap-1'>
               {!feedbackDisabled && !item.feedbackDisabled && renderItemOperation()}

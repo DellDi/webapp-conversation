@@ -119,6 +119,15 @@ export enum TransferMethod {
   remote_url = 'remote_url',
 }
 
+
+export type modelConfig = {
+  suggestedQuestions: string[] | null,
+  suggestedQuestionsAfterAnswer: {
+    enabled: boolean
+  }
+}
+
+
 export type VisionSettings = {
   enabled: boolean
   number_limits: number

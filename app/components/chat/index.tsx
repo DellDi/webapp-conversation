@@ -7,8 +7,8 @@ import Textarea from 'rc-textarea'
 import s from './style.module.css'
 import Answer from './answer'
 import Question from './question'
-import type { FeedbackFunc } from './type'
-import type { ChatItem, VisionFile, VisionSettings } from '@/types/app'
+import type { FeedbackFunc, OnSend } from './type'
+import type { ChatItem, VisionFile, modelConfig, VisionSettings } from '@/types/app'
 import { TransferMethod } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
 import Toast from '@/app/components/base/toast'
@@ -17,7 +17,9 @@ import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-u
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 
+
 export type IChatProps = {
+  modelConfig: modelConfig,
   chatList: ChatItem[]
   /**
    * Whether to display the editing area and rating status
@@ -29,7 +31,7 @@ export type IChatProps = {
   isHideSendInput?: boolean
   onFeedback?: FeedbackFunc
   checkCanSend?: () => boolean
-  onSend?: (message: string, files: VisionFile[]) => void
+  onSend?: OnSend,
   useCurrentUserAvatar?: boolean
   isResponsing?: boolean
   controlClearQuery?: number
@@ -38,6 +40,7 @@ export type IChatProps = {
 
 const Chat: FC<IChatProps> = ({
   chatList,
+  modelConfig,
   feedbackDisabled = false,
   isHideSendInput = false,
   onFeedback,
@@ -118,7 +121,10 @@ const Chat: FC<IChatProps> = ({
     }
   }
 
-  // const hasTryToAsk = config?.suggested_questions_after_answer?.enabled && !!suggestedQuestions?.length && onSend
+  const chatFooterRef = useRef<HTMLDivElement>(null)
+  const chatFooterInnerRef = useRef<HTMLDivElement>(null)
+  const { suggestedQuestions, suggestedQuestionsAfterAnswer } = modelConfig
+  const hasTryToAsk = suggestedQuestionsAfterAnswer?.enabled && !!suggestedQuestions?.length && onSend
 
   return (
     <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
@@ -130,6 +136,7 @@ const Chat: FC<IChatProps> = ({
             return <Answer
               key={item.id}
               item={item}
+              onSend={onSend}
               feedbackDisabled={feedbackDisabled}
               onFeedback={onFeedback}
               isResponsing={isResponsing && isLast}
@@ -146,6 +153,37 @@ const Chat: FC<IChatProps> = ({
           )
         })}
       </div>
+      {/* <div
+        className={`absolute bottom-0 p-2`}
+        ref={chatFooterRef}
+        style={{
+          background: 'linear-gradient(0deg, #F9FAFB 40%, rgba(255, 255, 255, 0.00) 100%)',
+        }}
+      >
+        <div
+          ref={chatFooterInnerRef}
+          className={`mx-auto w-full max-w-[720px]  px-4`}
+        >
+          {
+            !noStopResponding && isResponsing && (
+              <div className='flex justify-center mb-2'>
+                <Button onClick={onStopResponding}>
+                  <StopCircle className='mr-[5px] w-3.5 h-3.5 text-gray-500' />
+                  <span className='text-xs text-gray-500 font-normal'>{t('appDebug.operation.stopResponding')}</span>
+                </Button>
+              </div>
+            )
+          }
+          {
+            hasTryToAsk && (
+              <TryToAsk
+                suggestedQuestions={suggestedQuestions}
+                onSend={onSend}
+              />
+            )
+          }
+        </div>
+      </div> */}
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'absolute z-10 bottom-0 left-0 right-0')}>

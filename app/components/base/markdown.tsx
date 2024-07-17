@@ -8,7 +8,6 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atelierHeathLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 import { BarChart, LineChart, PieChart } from '../chart'
 export function Markdown(props: { content: string }) {
-  console.log("🚀 ~ Markdown ~ props:", props)
   let isChartRender
   let jsonRes = {
     chartType: 'line',
