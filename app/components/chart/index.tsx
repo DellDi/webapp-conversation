@@ -3,19 +3,19 @@ import React from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import { groupBy } from 'lodash-es'
-import { formatNumber } from '@/utils/format'
+// import { formatNumber } from '@/utils/format'
 import Loading from '@/app/components/base/loading'
 import Basic from '@/app/components/base/basic'
 const valueFormatter = (v: string | number) => v
 
 const COLOR_TYPE_MAP = {
     green: {
-        lineColor: 'rgba(6, 148, 162, 1)',
-        bgColor: ['rgba(6, 148, 162, 0.2)', 'rgba(67, 174, 185, 0.08)'],
+        lineColor: 'rgba(91, 143, 249, 1)',
+        bgColor: ['rgba(64, 158, 255, 0.2)', 'rgba(64, 158, 255, 0.08)'],
     },
     orange: {
-        lineColor: 'rgba(255, 138, 76, 1)',
-        bgColor: ['rgba(254, 145, 87, 0.2)', 'rgba(255, 138, 76, 0.1)'],
+        lineColor: 'rgba(97, 221, 170, 1)',
+        bgColor: ['rgba(119, 230, 184, 0.2)', 'rgba(119, 230, 184, 0.1)'],
     },
     blue: {
         lineColor: 'rgba(28, 100, 242, 1)',
