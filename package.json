@@ -71,6 +71,7 @@
     "@types/js-cookie": "^3.0.3",
     "@types/negotiator": "^0.6.1",
     "autoprefixer": "^10.4.14",
+    "code-inspector-plugin": "^0.15.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "lint-staged": "^13.2.2",
     "postcss": "^8.4.21",

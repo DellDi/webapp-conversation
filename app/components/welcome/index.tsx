@@ -28,7 +28,7 @@ export type IWelcomeProps = {
 // 获取当前页面的url中的userName参数
 export const getUserNameFromUrl = () => {
   const url = new URL(globalThis.location.href)
-  const userName = url.searchParams.get('userName') || '客户'
+  const userName = url.searchParams.get('userName')
   return userName
 }
 
