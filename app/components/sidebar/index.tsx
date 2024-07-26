@@ -5,7 +5,7 @@ import {
   ChatBubbleOvalLeftEllipsisIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline'
-import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon } from '@heroicons/react/24/solid'
+import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon, PlusCircleIcon } from '@heroicons/react/24/solid'
 import Button from '@/app/components/base/button'
 // import Card from './card'
 import type { ConversationItem } from '@/types/app'
@@ -32,23 +32,23 @@ const Sidebar: FC<ISidebarProps> = ({
   const { t } = useTranslation()
   return (
     <div
-      className="shrink-0 flex flex-col overflow-y-auto bg-white pc:w-[244px] tablet:w-[192px] mobile:w-[240px]  border-r border-gray-200 tablet:h-[calc(100vh_-_3rem)] mobile:h-screen"
+      className="linear-bg shrink-0 flex flex-col overflow-y-auto bg-white pc:w-[244px] tablet:w-[192px] mobile:w-[240px]  border-r border-gray-200 tablet:h-[calc(100vh_-_3rem)] mobile:h-screen"
     >
       {list.length < MAX_CONVERSATION_LENTH && (
         <div className="flex flex-shrink-0 p-4 !pb-0">
           <Button
             onClick={() => { onCurrentIdChange('-1') }}
             className="group block w-full flex-shrink-0 !justify-start !h-9 text-primary-600 items-center text-sm">
-            <PencilSquareIcon className="mr-2 h-4 w-4" /> {t('app.chat.newChat')}
+            <PlusCircleIcon className="mr-3 h-5 w-5 " /> {t('app.chat.newChat')}
           </Button>
         </div>
       )}
 
-      <nav className="mt-4 flex-1 space-y-1 bg-white p-4 !pt-0">
+      <nav className="mt-4 flex-1 space-y-3 bg-white p-4 !pt-0 linear-bg ">
         {list.map((item) => {
           const isCurrent = item.id === currentId
           const ItemIcon
-            = isCurrent ? ChatBubbleOvalLeftEllipsisSolidIcon : ChatBubbleOvalLeftEllipsisIcon
+            = isCurrent ? ChatBubbleOvalLeftEllipsisSolidIcon : ChatBubbleOvalLeftEllipsisSolidIcon
           return (
             <div
               onClick={() => onCurrentIdChange(item.id)}
@@ -57,19 +57,19 @@ const Sidebar: FC<ISidebarProps> = ({
                 isCurrent
                   ? 'bg-primary-50 text-primary-600'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-gray-700',
-                'group flex items-center rounded-md px-2 py-2 text-sm font-medium cursor-pointer',
+                'group flex border border-gray-300 items-center rounded-md px-2 py-2 text-sm text-[12px] font-medium cursor-pointer',
               )}
             >
               <ItemIcon
                 className={classNames(
                   isCurrent
                     ? 'text-primary-600'
-                    : 'text-gray-400 group-hover:text-gray-500',
+                    : 'text-[#A4B5D6] group-hover:text-gray-500',
                   'mr-3 h-5 w-5 flex-shrink-0',
                 )}
                 aria-hidden="true"
               />
-              {item.name}
+              <div className='text-nowrap overflow-hidden text-ellipsis' >{item.name}</div>
             </div>
           )
         })}
@@ -78,7 +78,7 @@ const Sidebar: FC<ISidebarProps> = ({
         <Card><div className="flex flex-row items-center"><ChatBubbleOvalLeftEllipsisSolidIcon className="text-primary-600 h-6 w-6 mr-2" /><span>LangGenius</span></div></Card>
       </a> */}
       <div className="flex flex-shrink-0 pr-4 pb-4 pl-4">
-        <div className="text-gray-400 font-normal text-xs">© {copyRight} {(new Date()).getFullYear()}</div>
+        <div className="text-gray-400 font-normal text-[13px]">© {copyRight} {(new Date()).getFullYear()}</div>
       </div>
     </div>
   )

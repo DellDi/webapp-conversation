@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@layer components {
+  .linear-bg {
+    @apply bg-gradient-to-b  from-[#e2eefd] to-[#f4fafe];
+  }
+
+  .linear-l {
+    @apply bg-gradient-to-r  from-[#cde4ff] to-[#cde4ff];
+  }
+
+}
+
+
 :root {
   --max-width: 1100px;
   --border-radius: 12px;
