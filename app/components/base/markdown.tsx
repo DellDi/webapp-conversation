@@ -1,12 +1,14 @@
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import ReactMarkdown from 'react-markdown'
 import 'katex/dist/katex.min.css'
-import RemarkMath from 'remark-math'
-import RemarkBreaks from 'remark-breaks'
-import RehypeKatex from 'rehype-katex'
-import RemarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atelierHeathLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import RehypeKatex from 'rehype-katex'
+import RemarkBreaks from 'remark-breaks'
+import RemarkGfm from 'remark-gfm'
+import RemarkMath from 'remark-math'
 import { BarChart, LineChart, PieChart } from '../chart'
+
 export function Markdown(props: { content: string }) {
   let isChartRender
   let jsonRes = {
@@ -17,22 +19,22 @@ export function Markdown(props: { content: string }) {
       {
         name: '新安明珠',
         value: 1000.22,
-        currentDate: '2024'
+        currentDate: '2024',
       },
       {
         name: '未来中心',
         value: 9912.22,
-        currentDate: '2024'
+        currentDate: '2024',
       },
       {
         name: '金色蓝庭',
         value: 1120.22,
-        currentDate: '2024'
-      }
-    ]
+        currentDate: '2024',
+      },
+    ],
   }
   let chartStr, mkStr
-  let contentArr = props.content.split('---图表信息如下---')
+  const contentArr = props.content.split('---图表信息如下---')
   if (contentArr.length > 1) {
     mkStr = contentArr[0]
     chartStr = contentArr[1]
@@ -49,14 +51,44 @@ export function Markdown(props: { content: string }) {
   const data = jsonRes.data
   const precinctName = jsonRes.precinctName
   return (
-    <div className="markdown-body">
+    <div className="markdown-body overflow-x-auto">
       {mkStr && <ReactMarkdown
         remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
         rehypePlugins={[
           RehypeKatex,
         ]}
         components={{
-          code({ node, inline, className, children, ...props }) {
+          table: ({
+            node,
+            ...props
+          }) => <Table {...props} />,
+          thead: ({
+            node,
+            ...props
+          }) => <TableHead {...props} />,
+          tr: ({
+            node,
+            ...props
+          }) => <TableRow {...props} />,
+          th: ({
+            node,
+            ...props
+          }) => <TableCell as="th" {...props} />,
+          td: ({
+            node,
+            ...props
+          }) => <TableCell {...props} />,
+          tbody: ({
+            node,
+            ...props
+          }) => <TableBody {...props} />,
+          code({
+            node,
+            inline,
+            className,
+            children,
+            ...props
+          }) {
             const match = /language-(\w+)/.exec(className || '')
             return (!inline && match)
               ? (
@@ -82,16 +114,19 @@ export function Markdown(props: { content: string }) {
       </ReactMarkdown>}
 
       {isChartRender && (
-        <div className='grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-2 bg-white'>
-          {jsonRes.chartType === 'line' && <LineChart chartData={{ data: data }} basicInfo={{
+        <div className="grid  w-full mb-2 bg-white">
+          {jsonRes.chartType === 'line' && <LineChart chartData={{ data }} basicInfo={{
             title: `【${precinctName}】-` + '折线图',
-          }} chartType={'line'} />}
-          {jsonRes.chartType === 'bar' && <BarChart chartData={{ data: data }} basicInfo={{
+          }} chartType={'line'}
+          />}
+          {jsonRes.chartType === 'bar' && <BarChart chartData={{ data }} basicInfo={{
             title: `【${precinctName}】-` + '柱状图',
-          }} chartType={'bar'} />}
-          {jsonRes.chartType === 'pie' && <PieChart chartData={{ data: data }} basicInfo={{
+          }} chartType={'bar'}
+          />}
+          {jsonRes.chartType === 'pie' && <PieChart chartData={{ data }} basicInfo={{
             title: `【${precinctName}】-` + '饼图',
-          }} chartType={'pie'} />}
+          }} chartType={'pie'}
+          />}
         </div>
       )}
     </div>

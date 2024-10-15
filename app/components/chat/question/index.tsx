@@ -3,7 +3,6 @@ import type { FC } from 'react'
 import React from 'react'
 import type { IChatItem } from '../type'
 import s from '../style.module.css'
-
 import { Markdown } from '@/app/components/base/markdown'
 import ImageGallery from '@/app/components/base/image-gallery'
 
