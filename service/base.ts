@@ -1,4 +1,4 @@
-import { API_PREFIX } from '@/config'
+import { API_KEY, API_PREFIX } from '@/config'
 import Toast from '@/app/components/base/toast'
 import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/chat/type'
 import type { VisionFile } from '@/types/app'
@@ -386,11 +386,19 @@ export const ssePost = (
   const urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
 
   const { body } = options
-  if (body)
+
+  if (!body.inputs.userName) {
+    body.inputs.userName = 'DellDi'
+  }
+  if (body) {
     options.body = JSON.stringify(body)
+  }
+
+  options.headers['Authorization'] = `Bearer ${API_KEY}`
 
   globalThis.fetch(urlWithPrefix, options)
     .then((res: any) => {
+      console.log("🚀 ~ .then ~ res:", res)
       if (!/^(2|3)\d{2}$/.test(res.status)) {
         // eslint-disable-next-line no-new
         new Promise(() => {

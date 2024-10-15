@@ -101,10 +101,17 @@ const Chart: React.FC<IChartProps> = ({
             position: 'top',
             borderWidth: 0,
         },
+        color: [
+            "rgba(12, 76, 61, 0.61)",
+            "rgba(173, 58, 39, 0.39)",
+            "rgba(197, 37, 24, 0.24)",
+            "rgba(43, 74, 66, 0.66)",
+            "rgba(27, 87, 67, 0.67)"
+        ],
         xAxis: [{
             type: 'category',
             // boundaryGap: false,
-            boundaryGap: [10, 10],
+            // boundaryGap: [10, 10],
             axisLabel: {
                 color: COMMON_COLOR_MAP.label,
                 hideOverlap: true,
@@ -128,7 +135,7 @@ const Chart: React.FC<IChartProps> = ({
             },
         }, {
             position: 'bottom',
-            boundaryGap: false,
+            // boundaryGap: [10, 10],
             data: extraDataForMarkLine,
             axisLabel: { show: false },
             axisLine: { show: false },
@@ -160,10 +167,9 @@ const Chart: React.FC<IChartProps> = ({
                 // symbol: 'circle',
                 // triggerLineEvent: true,
                 symbolSize: 4,
-                radius: [20, 150],
+                radius: [20, 100],
                 center: ['50%', '50%'],
                 roseType: 'area',
-
                 barMaxWidth: 14, // 设置柱子的最大宽度为50像素
                 barGap: '10', // 控制同一组内柱子之间的间距
 
