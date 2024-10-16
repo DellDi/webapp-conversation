@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const { codeInspectorPlugin } = require('code-inspector-plugin');
+const { codeInspectorPlugin } = require('code-inspector-plugin')
 
 const nextConfig = {
   productionBrowserSourceMaps: false, // enable browser source map generation during the production build
@@ -19,8 +19,23 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   webpack: (config, { dev, isServer }) => {
-    config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }));
-    return config;
+    config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
+    // config.module.rules.push({
+    //   test: /\.css$/,
+    //   use: [
+    //     'style-loader',
+    //     {
+    //       loader: 'css-loader',
+    //       options: {
+    //         modules: {
+    //           localIdentName: '[local]__[hash:base64:5]',
+    //         },
+    //       },
+    //     },
+    //     'postcss-loader', // Ensure Tailwind CSS is processed
+    //   ],
+    // })
+    return config
   },
 }
 

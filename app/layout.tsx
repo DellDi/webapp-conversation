@@ -1,7 +1,7 @@
 import { getLocaleOnServer } from '@/i18n/server'
 
 import './styles/globals.css'
-import './styles/markdown.scss'
+import './styles/markdown.css'
 // {/* className="overflow-x-auto" */ }
 const LocaleLayout = ({
   children,
