@@ -6,40 +6,9 @@ import RehypeKatex from 'rehype-katex'
 import RemarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atelierHeathLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
-import { BarChart, LineChart, PieChart } from '../chart'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { BarChart, IChartType, LineChart, PieChart } from '../chart'
 
-const CustomTableRenderer = ({children}: {children: React.ReactNode}) => {
-  const [header, ...rows] = Array.isArray(children) ? children : [children]
-
-  return (
-    <Table>
-      <TableHeader>
-        { header?.props?.children?.map((cell: React.ReactNode, index: number) => (
-          <TableHead key={ index }>{ cell }</TableHead>
-        )) }
-      </TableHeader>
-      <TableBody>
-        { rows.map((row: any, rowIndex: number) => (
-          <TableRow key={ rowIndex }>
-            { row.props.children.map((cell: React.ReactNode, cellIndex: number) => (
-              <TableCell key={ cellIndex }>{ cell }</TableCell>
-            )) }
-          </TableRow>
-        )) }
-      </TableBody>
-    </Table>
-  )
-}
-
-export function Markdown(props: {content: string}) {
+export function Markdown(props: { content: string }) {
   let isChartRender
   let jsonRes = {
     chartType: 'line',
@@ -49,16 +18,6 @@ export function Markdown(props: {content: string}) {
       {
         name: '新安明珠',
         value: 1000.22,
-        currentDate: '2024',
-      },
-      {
-        name: '未来中心',
-        value: 9912.22,
-        currentDate: '2024',
-      },
-      {
-        name: '金色蓝庭',
-        value: 1120.22,
         currentDate: '2024',
       },
     ],
@@ -82,51 +41,96 @@ export function Markdown(props: {content: string}) {
   const precinctName = jsonRes.precinctName
   return (
     <div className="markdown-body">
-      { mkStr && <ReactMarkdown
-        remarkPlugins={ [RemarkMath, RemarkGfm, RemarkBreaks] }
-        rehypePlugins={ [
+      {mkStr && <ReactMarkdown
+        remarkPlugins={[RemarkMath, RemarkGfm, RemarkBreaks]}
+        rehypePlugins={[
           RehypeKatex,
-        ] }
-        components={ {
-          table: CustomTableRenderer,
-          code({node, inline, className, children, ...props}) {
-            const match = /language-(\w+)/.exec(className || '')
-            return (!inline && match)
+        ]}
+        components={{
+          table({ children, ...props }) {
+            return (
+              <div className="overflow-x-auto bg-white mb-4 rounded-md dark:bg-black">
+                <table {...props} className="min-w-full text-left text-sm font-light text-surface dark:text-white">
+                  {children}
+                </table>
+              </div>
+            )
+          },
+          thead({ children, ...props }) {
+            return (
+              <thead {...props}
+                     className="border-b border-neutral-200 bg-neutral-50 font-medium dark:border-white/10 dark:text-neutral-800">
+              {children}
+              </thead>
+            )
+          },
+          tr({ children, ...props }) {
+            return (
+              <tr {...props} className="border-b border-neutral-200 dark:border-white/10">
+                {children}
+              </tr>
+            )
+          },
+          th({ children, ...props }) {
+            return (
+              <th {...props} className="px-2 py-2">
+                {children}
+              </th>
+            )
+          },
+          td({ children, ...props }) {
+            return (
+              <td {...props} className="px-2 py-2 whitespace-nowrap">
+                {children}
+              </td>
+            )
+          },
+          code({ children, ...props }) {
+            const match = /language-(\w+)/.exec(props.className || '')
+            return (!props.inline && match)
               ? (
                 <SyntaxHighlighter
-                  { ...props }
-                  children={ String(children).replace(/\n$/, '') }
-                  style={ atelierHeathLight }
-                  language={ match[1] }
+                  {...props}
+                  children={String(children).replace(/\n$/, '')}
+                  style={atelierHeathLight}
+                  language={match[1]}
                   showLineNumbers
                   PreTag="div"
                 />
               )
               : (
-                <code { ...props } className={ className }>
-                  { children }
+                <code {...props} className={props.className}>
+                  {children}
                 </code>
               )
           },
-        } }
-        linkTarget={ '_blank' }
+        }}
+        linkTarget={'_blank'}
       >
-        { mkStr }
-      </ReactMarkdown> }
+        {mkStr}
+      </ReactMarkdown>}
 
-      { isChartRender && (
+      {isChartRender && (
         <div className="grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-2 bg-white">
-          { jsonRes.chartType === 'line' && <LineChart chartData={ {data} } basicInfo={ {
-            title: `【${ precinctName }】-` + '折线图',
-          } } chartType={ 'line' }/> }
-          { jsonRes.chartType === 'bar' && <BarChart chartData={ {data} } basicInfo={ {
-            title: `【${ precinctName }】-` + '柱状图',
-          } } chartType={ 'bar' }/> }
-          { jsonRes.chartType === 'pie' && <PieChart chartData={ {data} } basicInfo={ {
-            title: `【${ precinctName }】-` + '饼图',
-          } } chartType={ 'pie' }/> }
+          {(() => {
+            const ChartComponent = {
+              line: LineChart,
+              bar: BarChart,
+              pie: PieChart,
+            }[jsonRes.chartType]
+
+            return ChartComponent
+              ? (
+                <ChartComponent
+                  chartData={{ data }}
+                  basicInfo={{ title: `【${precinctName}】` }}
+                  chartType={jsonRes.chartType as IChartType}
+                />
+              )
+              : null
+          })()}
         </div>
-      ) }
+      )}
     </div>
   )
 }
