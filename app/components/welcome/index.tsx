@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TemplateVarPanel, { PanelTitle, VarOpBtnGroup } from '../value-panel'
 import s from './style.module.css'
-import { AppInfoComp, ChatBtn, EditBtn, FootLogo, PromptTemplate } from './massive-component'
+import { AppInfoComp, ChatBtn, EditBtn, PromptTemplate } from './massive-component'
 import type { AppInfo, PromptConfig } from '@/types/app'
 import Toast from '@/app/components/base/toast'
 import Select from '@/app/components/base/select'
@@ -59,7 +59,7 @@ const Welcome: FC<IWelcomeProps> = ({
     return res
   })())
 
-  const [needsClick, setNeedsClick] = useState(false);
+  const [needsClick, setNeedsClick] = useState(false)
 
   useEffect(() => {
     if (!savedInputs) {
@@ -70,19 +70,18 @@ const Welcome: FC<IWelcomeProps> = ({
         })
       }
       setInputs(res)
-      setNeedsClick(true);
-    }
-    else {
+      setNeedsClick(true)
+    } else {
       setInputs(savedInputs)
     }
   }, [savedInputs])
 
   useEffect(() => {
     if (needsClick) {
-      handleChat();
-      setNeedsClick(false);
+      handleChat()
+      setNeedsClick(false)
     }
-  }, [needsClick]); // 依赖项列表中只有inputs
+  }, [needsClick]) // 依赖项列表中只有inputs
 
   const highLightPromoptTemplate = (() => {
     if (!promptConfig)
@@ -100,34 +99,41 @@ const Welcome: FC<IWelcomeProps> = ({
 
   const renderHeader = () => {
     return (
-      <div className='absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-8 bg-white'>
-        <div className='text-gray-900'>{conversationName}</div>
+      <div
+        className="absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-8">
+        <div className="text-gray-900">{conversationName}</div>
       </div>
     )
   }
 
   const renderInputs = () => {
     return (
-      <div className='space-y-3'>
+      <div className="space-y-3">
         {promptConfig.prompt_variables.map(item => (
-          <div className='tablet:flex items-start mobile:space-y-2 tablet:space-y-0 mobile:text-xs tablet:text-sm' key={item.key}>
-            <label className={`flex-shrink-0 flex items-center tablet:leading-9 mobile:text-gray-700 tablet:text-gray-900 mobile:font-medium pc:font-normal ${s.formLabel}`}>{item.name}</label>
+          <div className="tablet:flex items-start mobile:space-y-2 tablet:space-y-0 mobile:text-xs tablet:text-sm"
+               key={item.key}>
+            <label
+              className={`flex-shrink-0 flex items-center tablet:leading-9 mobile:text-gray-700 tablet:text-gray-900 mobile:font-medium pc:font-normal ${s.formLabel}`}>{item.name}</label>
             {item.type === 'select'
               && (
                 <Select
-                  className='w-full'
+                  className="w-full"
                   defaultValue={inputs?.[item.key]}
-                  onSelect={(i) => { setInputs({ ...inputs, [item.key]: i.value }) }}
+                  onSelect={(i) => {
+                    setInputs({ ...inputs, [item.key]: i.value })
+                  }}
                   items={(item.options || []).map(i => ({ name: i, value: i }))}
                   allowSearch={false}
-                  bgClassName='bg-gray-50'
+                  bgClassName="bg-gray-50"
                 />
               )}
             {item.type === 'string' && (
               <input
                 placeholder={`${item.name}${!item.required ? `(${t('appDebug.variableTable.optional')})` : ''}`}
                 value={inputs?.[item.key] || ''}
-                onChange={(e) => { setInputs({ ...inputs, [item.key]: e.target.value }) }}
+                onChange={(e) => {
+                  setInputs({ ...inputs, [item.key]: e.target.value })
+                }}
                 className={'w-full flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50'}
                 maxLength={item.max_length || DEFAULT_VALUE_MAX_LEN}
               />
@@ -137,7 +143,9 @@ const Welcome: FC<IWelcomeProps> = ({
                 className="w-full h-[104px] flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50"
                 placeholder={`${item.name}${!item.required ? `(${t('appDebug.variableTable.optional')})` : ''}`}
                 value={inputs?.[item.key] || ''}
-                onChange={(e) => { setInputs({ ...inputs, [item.key]: e.target.value }) }}
+                onChange={(e) => {
+                  setInputs({ ...inputs, [item.key]: e.target.value })
+                }}
               />
             )}
           </div>
@@ -167,20 +175,20 @@ const Welcome: FC<IWelcomeProps> = ({
     if (isPublicVersion) {
       return (
         <div>
-          <AppInfoComp siteInfo={siteInfo} />
+          <AppInfoComp siteInfo={siteInfo}/>
           <TemplateVarPanel
             isFold={false}
             header={
               <>
                 <PanelTitle
                   title={t('app.chat.publicPromptConfigTitle')}
-                  className='mb-1'
+                  className="mb-1"
                 />
-                <PromptTemplate html={highLightPromoptTemplate} />
+                <PromptTemplate html={highLightPromoptTemplate}/>
               </>
             }
           >
-            <ChatBtn onClick={handleChat} />
+            <ChatBtn onClick={handleChat}/>
           </TemplateVarPanel>
         </div>
       )
@@ -190,10 +198,10 @@ const Welcome: FC<IWelcomeProps> = ({
       <TemplateVarPanel
         isFold={false}
         header={
-          <AppInfoComp siteInfo={siteInfo} />
+          <AppInfoComp siteInfo={siteInfo}/>
         }
       >
-        <ChatBtn onClick={handleChat} />
+        <ChatBtn onClick={handleChat}/>
       </TemplateVarPanel>
     )
   }
@@ -203,12 +211,12 @@ const Welcome: FC<IWelcomeProps> = ({
       <TemplateVarPanel
         isFold={false}
         header={
-          <AppInfoComp siteInfo={siteInfo} />
+          <AppInfoComp siteInfo={siteInfo}/>
         }
       >
         {renderInputs()}
         <ChatBtn
-          className='mt-3 mobile:ml-0 tablet:ml-[128px]'
+          className="mt-3 mobile:ml-0 tablet:ml-[128px]"
           onClick={handleChat}
         />
       </TemplateVarPanel>
@@ -242,9 +250,9 @@ const Welcome: FC<IWelcomeProps> = ({
             <>
               <PanelTitle
                 title={t('app.chat.publicPromptConfigTitle')}
-                className='mb-1'
+                className="mb-1"
               />
-              <PromptTemplate html={highLightPromoptTemplate} />
+              <PromptTemplate html={highLightPromoptTemplate}/>
             </>
           }
         />
@@ -258,13 +266,14 @@ const Welcome: FC<IWelcomeProps> = ({
           <>
             <PanelTitle
               title={t('app.chat.publicPromptConfigTitle')}
-              className='mb-1'
+              className="mb-1"
             />
-            <PromptTemplate html={highLightPromoptTemplate} />
+            <PromptTemplate html={highLightPromoptTemplate}/>
             {isFold && (
-              <div className='flex items-center justify-between mt-3 border-t border-indigo-100 pt-4 text-xs text-indigo-600'>
-                <span className='text-gray-700'>{t('app.chat.configStatusDes')}</span>
-                <EditBtn onClick={() => setIsFold(false)} />
+              <div
+                className="flex items-center justify-between mt-3 border-t border-indigo-100 pt-4 text-xs text-indigo-600">
+                <span className="text-gray-700">{t('app.chat.configStatusDes')}</span>
+                <EditBtn onClick={() => setIsFold(false)}/>
               </div>
             )}
           </>
@@ -284,12 +293,12 @@ const Welcome: FC<IWelcomeProps> = ({
       <TemplateVarPanel
         isFold={isFold}
         header={
-          <div className='flex items-center justify-between text-indigo-600'>
+          <div className="flex items-center justify-between text-indigo-600">
             <PanelTitle
               title={!isFold ? t('app.chat.privatePromptConfigTitle') : t('app.chat.configStatusDes')}
             />
             {isFold && (
-              <EditBtn onClick={() => setIsFold(false)} />
+              <EditBtn onClick={() => setIsFold(false)}/>
             )}
           </div>
         }
@@ -306,20 +315,20 @@ const Welcome: FC<IWelcomeProps> = ({
 
     return (
       <div
-        className='pt-[88px] mb-5'
+        className="pt-[88px] mb-5"
       >
         {isPublicVersion ? renderHasSetInputsPublic() : renderHasSetInputsPrivate()}
       </div>)
   }
 
   return (
-    <div className='relative mobile:min-h-[48px] tablet:min-h-[64px]'>
+    <div className="relative mobile:min-h-[48px] tablet:min-h-[64px]">
       {hasSetInputs && renderHeader()}
-      <div className='mx-auto pc:w-[794px] max-w-full mobile:w-full px-3.5'>
+      <div className="mx-auto pc:w-[794px] max-w-full mobile:w-full px-3.5">
         {/*  Has't set inputs  */}
         {
           !hasSetInputs && (
-            <div className='mobile:pt-[72px] tablet:pt-[128px] pc:pt-[200px]'>
+            <div className="mobile:pt-[72px] tablet:pt-[128px] pc:pt-[200px]">
               {hasVar
                 ? (
                   renderVarPanel()
@@ -336,14 +345,14 @@ const Welcome: FC<IWelcomeProps> = ({
 
         {/* foot */}
         {!hasSetInputs && (
-          <div className='mt-4 flex justify-between items-center h-8 text-xs text-gray-400'>
+          <div className="mt-4 flex justify-between items-center h-8 text-xs text-gray-400">
 
             {siteInfo.privacy_policy
               ? <div>{t('app.chat.privacyPolicyLeft')}
                 <a
-                  className='text-gray-500'
+                  className="text-gray-500"
                   href={siteInfo.privacy_policy}
-                  target='_blank'>{t('app.chat.privacyPolicyMiddle')}</a>
+                  target="_blank">{t('app.chat.privacyPolicyMiddle')}</a>
                 {t('app.chat.privacyPolicyRight')}
               </div>
               : <div>
@@ -355,7 +364,7 @@ const Welcome: FC<IWelcomeProps> = ({
           </div>
         )}
       </div>
-    </div >
+    </div>
   )
 }
 

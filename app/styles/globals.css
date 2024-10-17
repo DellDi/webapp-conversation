@@ -10,7 +10,6 @@
     .linear-l {
         @apply bg-gradient-to-r  from-[#cde4ff] to-[#cde4ff];
     }
-
 }
 
 :root {
@@ -97,7 +96,5 @@ a {
 @layer base {
     :root {
         --radius: 0.5rem;
-
     }
-
 }

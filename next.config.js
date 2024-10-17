@@ -18,23 +18,8 @@ const nextConfig = {
     // https://nextjs.org/docs/api-reference/next.config.js/ignoring-typescript-errors
     ignoreBuildErrors: true,
   },
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config) => {
     config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
-    // config.module.rules.push({
-    //   test: /\.css$/,
-    //   use: [
-    //     'style-loader',
-    //     {
-    //       loader: 'css-loader',
-    //       options: {
-    //         modules: {
-    //           localIdentName: '[local]__[hash:base64:5]',
-    //         },
-    //       },
-    //     },
-    //     'postcss-loader', // Ensure Tailwind CSS is processed
-    //   ],
-    // })
     return config
   },
 }

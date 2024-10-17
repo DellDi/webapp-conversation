@@ -10,8 +10,23 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
-import type { ChatItem, ConversationItem, Feedbacktype, modelConfig, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
+import {
+  fetchAppParams,
+  fetchChatList,
+  fetchConversations,
+  generationConversationName,
+  sendChatMessage,
+  updateFeedback,
+} from '@/service'
+import type {
+  ChatItem,
+  ConversationItem,
+  Feedbacktype,
+  modelConfig,
+  PromptConfig,
+  VisionFile,
+  VisionSettings,
+} from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
 import { setLocaleOnClient } from '@/i18n/client'
@@ -115,8 +130,7 @@ const Main: FC = () => {
         name: item?.name || '',
         introduction: notSyncToStateIntroduction,
       })
-    }
-    else {
+    } else {
       notSyncToStateInputs = newConversationInputs
       setCurrInputs(notSyncToStateInputs)
     }
@@ -157,8 +171,7 @@ const Main: FC = () => {
     if (id === '-1') {
       createNewChat()
       setConversationIdChangeBecauseOfNew(true)
-    }
-    else {
+    } else {
       setConversationIdChangeBecauseOfNew(false)
     }
     // trigger handleConversationSwitch
@@ -209,14 +222,13 @@ const Main: FC = () => {
       isAnswer: true,
       feedbackDisabled: true,
       isOpeningStatement: isShowPrompt,
-      suggestedQuestions
+      suggestedQuestions,
     }
     if (caculatedIntroduction)
       return [openstatement]
 
     return []
   }
-
 
 
   // init
@@ -235,7 +247,14 @@ const Main: FC = () => {
         const isNotNewConversation = conversations.some(item => item.id === _conversationId)
 
         // fetch new conversation info
-        const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions, suggested_questions_after_answer }: any = appParams
+        const {
+          user_input_form,
+          opening_statement: introduction,
+          file_upload,
+          system_parameters,
+          suggested_questions,
+          suggested_questions_after_answer,
+        }: any = appParams
 
         setSuggestedQuestions(suggested_questions)
         setSuggested(suggested_questions_after_answer.enabled)
@@ -260,12 +279,10 @@ const Main: FC = () => {
           setCurrConversationId(_conversationId, APP_ID, false)
 
         setInited(true)
-      }
-      catch (e: any) {
+      } catch (e: any) {
         if (e.status === 404) {
           setAppUnavailable(true)
-        }
-        else {
+        } else {
           setIsUnknwonReason(true)
           setAppUnavailable(true)
         }
@@ -388,11 +405,14 @@ const Main: FC = () => {
       getAbortController: (abortController) => {
         setAbortController(abortController)
       },
-      onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
+      onData: (message: string, isFirstMessage: boolean, {
+        conversationId: newConversationId,
+        messageId,
+        taskId,
+      }: any) => {
         if (!isAgentMode) {
           responseItem.content = responseItem.content + message
-        }
-        else {
+        } else {
           const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
           if (lastThought)
             lastThought.thought = lastThought.thought + message // need immer setAutoFreeze
@@ -468,16 +488,14 @@ const Main: FC = () => {
         // responseItem.id = thought.message_id;
         if (response.agent_thoughts.length === 0) {
           response.agent_thoughts.push(thought)
-        }
-        else {
+        } else {
           const lastThought = response.agent_thoughts[response.agent_thoughts.length - 1]
           // thought changed but still the same thought, so update.
           if (lastThought.id === thought.id) {
             thought.thought = lastThought.thought
             thought.message_files = lastThought.message_files
             responseItem.agent_thoughts![response.agent_thoughts.length - 1] = thought
-          }
-          else {
+          } else {
             responseItem.agent_thoughts!.push(thought)
           }
         }
@@ -622,41 +640,40 @@ const Main: FC = () => {
   }
 
   if (appUnavailable)
-    return <AppUnavailable isUnknwonReason={isUnknwonReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
+    return <AppUnavailable isUnknwonReason={isUnknwonReason}
+                           errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''}/>
 
   if (!APP_ID || !APP_INFO || !promptConfig)
-    return <Loading type='app' />
-
-
+    return <Loading type="app"/>
   const modelConfig: modelConfig = {
     suggestedQuestions,
     suggestedQuestionsAfterAnswer: {
-      enabled: hasSuggested
-    }
+      enabled: hasSuggested,
+    },
   }
   return (
-    <div className='bg-gray-100'>
+    <div className="">
       <Header
         title={APP_INFO.title}
         isMobile={isMobile}
         onShowSideBar={showSidebar}
         onCreateNewChat={() => handleConversationIdChange('-1')}
       />
-      <div className="flex rounded-t-2xl bg-white overflow-hidden">
+      <div className="flex rounded-t-2xl  overflow-hidden">
         {/* sidebar */}
         {!isMobile && renderSidebar()}
         {isMobile && isShowSidebar && (
-          <div className='fixed inset-0 z-50'
-            style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
-            onClick={hideSidebar}
+          <div className="fixed inset-0 z-50"
+               style={{ backgroundColor: 'rgba(35, 56, 118, 0.2)' }}
+               onClick={hideSidebar}
           >
-            <div className='inline-block' onClick={e => e.stopPropagation()}>
+            <div className="inline-block" onClick={e => e.stopPropagation()}>
               {renderSidebar()}
             </div>
           </div>
         )}
         {/* main */}
-        <div className='flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto'>
+        <div className="flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto">
           <ConfigSence
             conversationName={conversationName}
             hasSetInputs={hasSetInputs}
@@ -671,8 +688,9 @@ const Main: FC = () => {
 
           {
             hasSetInputs && (
-              <div className='relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden'>
-                <div className='h-full overflow-y-auto' ref={chatListDomRef}>
+              <div
+                className="relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden">
+                <div className="h-full overflow-y-auto" ref={chatListDomRef}>
                   <Chat
                     modelConfig={modelConfig}
                     chatList={chatList}

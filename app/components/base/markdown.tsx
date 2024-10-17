@@ -6,7 +6,8 @@ import RehypeKatex from 'rehype-katex'
 import RemarkGfm from 'remark-gfm'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { atelierHeathLight } from 'react-syntax-highlighter/dist/esm/styles/hljs'
-import { BarChart, IChartType, LineChart, PieChart } from '../chart'
+import type { IChartType } from '../chart'
+import { BarChart, LineChart, PieChart } from '../chart'
 
 export function Markdown(props: { content: string }) {
   let isChartRender
