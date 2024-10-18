@@ -92,10 +92,11 @@ const Chart: FC<IChartProps> = ({
     },
     color: [
       '#0075ff',
-      '#4147e3',
       '#52c1ff',
-      '#6669ed',
+      '#0736c0',
+      '#4144f9',
       '#6598f8',
+      '#a8b0f8',
     ],
     xAxis: [{
       type: 'category',
@@ -155,7 +156,7 @@ const Chart: FC<IChartProps> = ({
           length2: -10,
         },
         symbolSize: 4,
-        radius: [20, 100],
+        radius: [20, 120],
         center: ['50%', '50%'],
         roseType: 'area',
         barMaxWidth: 14,
@@ -164,8 +165,39 @@ const Chart: FC<IChartProps> = ({
           padding: [4, 6, 4, 6],
           formatter(params) {
             return `<div style="color:#6B7280;font-size:12px">${params.name}</div>
-                  <div style="font-size:14px;color:#1F2A37">${valueFormatter((params.data as any)[yField])}
-              </div>`
+                <div style="font-size:14px;color:#1F2A37">${valueFormatter((params.data as any)[yField])}
+            </div>`
+          },
+        },
+        itemStyle: chartType === 'pie'
+          ? {
+            borderRadius: 8,
+          }
+          : {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: '#0075ff' },
+                { offset: 1, color: 'rgba(0,117,255,0.06)' },
+              ],
+            },
+          },
+
+        areaStyle: {
+          color: {
+            type: 'linear',
+            x: 0,
+            y: 0,
+            x2: 0,
+            y2: 1,
+            colorStops: [
+              { offset: 0, color: '#0075ff' },
+              { offset: 1, color: 'rgba(82,193,255,0.28)' },
+            ],
           },
         },
       },

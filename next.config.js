@@ -18,8 +18,11 @@ const nextConfig = {
     // https://nextjs.org/docs/api-reference/next.config.js/ignoring-typescript-errors
     ignoreBuildErrors: true,
   },
-  webpack: (config) => {
-    config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
+  webpack: (config, { dev, isServer }) => {
+    console.log('🚀 ~ file:next.config.js, line:22-----', dev, isServer)
+    if (dev) {
+      config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
+    }
     return config
   },
 }
