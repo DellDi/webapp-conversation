@@ -9,6 +9,8 @@ import type { AppInfo, PromptConfig } from '@/types/app'
 import Toast from '@/app/components/base/toast'
 import Select from '@/app/components/base/select'
 import { DEFAULT_VALUE_MAX_LEN } from '@/config'
+import { Bars3Icon } from '@heroicons/react/24/solid'
+import { getCustomUrlParams } from '@/utils'
 
 // regex to match the {{}} and replace it with a span
 const regex = /\{\{([^}]+)\}\}/g
@@ -17,19 +19,13 @@ export type IWelcomeProps = {
   conversationName: string
   hasSetInputs: boolean
   isPublicVersion: boolean
+  onShowSideBar?: () => void
   siteInfo: AppInfo
   promptConfig: PromptConfig
   onStartChat: (inputs: Record<string, any>) => void
   canEidtInpus: boolean
   savedInputs: Record<string, any>
   onInputsChange: (inputs: Record<string, any>) => void
-}
-
-// 获取当前页面的url中的userName参数
-export const getUserNameFromUrl = () => {
-  const url = new URL(globalThis.location.href)
-  const userName = url.searchParams.get('userName')
-  return userName
 }
 
 const Welcome: FC<IWelcomeProps> = ({
@@ -40,10 +36,11 @@ const Welcome: FC<IWelcomeProps> = ({
   promptConfig,
   onStartChat,
   canEidtInpus,
+  onShowSideBar,
   savedInputs,
   onInputsChange,
 }) => {
-  const userName = getUserNameFromUrl()
+  const { userName } = getCustomUrlParams()
   const { t } = useTranslation()
   const hasVar = promptConfig.prompt_variables.length > 0
   const [isFold, setIsFold] = useState<boolean>(true)
@@ -76,6 +73,28 @@ const Welcome: FC<IWelcomeProps> = ({
     }
   }, [savedInputs])
 
+  const { notify } = Toast
+  const logError = (message: string) => {
+    notify({ type: 'error', message, duration: 3000 })
+  }
+
+  const canChat = () => {
+    const inputLens = Object.values(inputs).length
+    const promptVariablesLens = promptConfig.prompt_variables.length
+    const emytyInput = inputLens < promptVariablesLens || Object.values(inputs).filter(v => v === '').length > 0
+    if (emytyInput) {
+      logError(t('app.errorMessage.valueOfVarRequired'))
+      return false
+    }
+    return true
+  }
+
+  const handleChat = () => {
+    if (!canChat())
+      return
+    onStartChat(inputs)
+  }
+
   useEffect(() => {
     if (needsClick) {
       handleChat()
@@ -92,16 +111,17 @@ const Welcome: FC<IWelcomeProps> = ({
     return res
   })()
 
-  const { notify } = Toast
-  const logError = (message: string) => {
-    notify({ type: 'error', message, duration: 3000 })
-  }
-
   const renderHeader = () => {
     return (
       <div
-        className="absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-8">
-        <div className="text-gray-900">{conversationName}</div>
+        className="absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-4">
+        <div className="text-gray-900 w-4/5 truncate">{conversationName}</div>
+        <div
+          className="flex items-center justify-center h-8 w-8 cursor-pointer"
+          onClick={() => onShowSideBar?.()}
+        >
+          <Bars3Icon className="h-4 w-4 text-gray-500"/>
+        </div>
       </div>
     )
   }
@@ -110,8 +130,7 @@ const Welcome: FC<IWelcomeProps> = ({
     return (
       <div className="space-y-3">
         {promptConfig.prompt_variables.map(item => (
-          <div className="tablet:flex items-start mobile:space-y-2 tablet:space-y-0 mobile:text-xs tablet:text-sm"
-               key={item.key}>
+          <div className="tablet:flex items-start mobile:space-y-2 tablet:space-y-0 mobile:text-xs tablet:text-sm" key={item.key}>
             <label
               className={`flex-shrink-0 flex items-center tablet:leading-9 mobile:text-gray-700 tablet:text-gray-900 mobile:font-medium pc:font-normal ${s.formLabel}`}>{item.name}</label>
             {item.type === 'select'
@@ -152,23 +171,6 @@ const Welcome: FC<IWelcomeProps> = ({
         ))}
       </div>
     )
-  }
-
-  const canChat = () => {
-    const inputLens = Object.values(inputs).length
-    const promptVariablesLens = promptConfig.prompt_variables.length
-    const emytyInput = inputLens < promptVariablesLens || Object.values(inputs).filter(v => v === '').length > 0
-    if (emytyInput) {
-      logError(t('app.errorMessage.valueOfVarRequired'))
-      return false
-    }
-    return true
-  }
-
-  const handleChat = () => {
-    if (!canChat())
-      return
-    onStartChat(inputs)
   }
 
   const renderNoVarPanel = () => {

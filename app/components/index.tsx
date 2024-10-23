@@ -2,6 +2,7 @@
 'use client'
 import type { FC } from 'react'
 import React, { useEffect, useRef, useState } from 'react'
+
 import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
@@ -9,24 +10,17 @@ import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
-import Header from '@/app/components/header'
 import {
+  fetchAllProjectName,
   fetchAppParams,
   fetchChatList,
   fetchConversations,
   generationConversationName,
+  replaceArrText,
   sendChatMessage,
   updateFeedback,
 } from '@/service'
-import type {
-  ChatItem,
-  ConversationItem,
-  Feedbacktype,
-  modelConfig,
-  PromptConfig,
-  VisionFile,
-  VisionSettings,
-} from '@/types/app'
+import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
 import Chat from '@/app/components/chat'
 import { setLocaleOnClient } from '@/i18n/client'
@@ -37,16 +31,13 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
+import { getCustomUrlParams } from '@/utils'
 
 const Main: FC = () => {
   const { t } = useTranslation()
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
   const hasSetAppConfig = APP_ID && API_KEY
-
-  /*
-  * app info
-  */
   const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
   const [isUnknwonReason, setIsUnknwonReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
@@ -56,15 +47,14 @@ const Main: FC = () => {
   const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
     enabled: false,
     number_limits: 2,
-    detail: Resolution.low,
+    detail: Resolution.high,
     transfer_methods: [TransferMethod.local_file],
   })
-
   useEffect(() => {
     if (APP_INFO?.title)
       // document.title = `${APP_INFO.title} - Powered by Dify`
       document.title = `${APP_INFO.title} `
-  }, [APP_INFO?.title])
+  }, [])
 
   // onData change thought (the produce obj). https://github.com/immerjs/immer/issues/576
   useEffect(() => {
@@ -206,6 +196,7 @@ const Main: FC = () => {
     }))
   }
 
+  const { token } = getCustomUrlParams()
   // 新增建议功能
   const [hasSuggested, setSuggested, getSuggested] = useGetState(false)
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([])
@@ -215,7 +206,6 @@ const Main: FC = () => {
     const caculatedPromptVariables = inputs || currInputs || null
     if (caculatedIntroduction && caculatedPromptVariables)
       caculatedIntroduction = replaceVarWithValues(caculatedIntroduction, promptConfig?.prompt_variables || [], caculatedPromptVariables)
-
     const openstatement = {
       id: `${Date.now()}`,
       content: caculatedIntroduction,
@@ -226,10 +216,9 @@ const Main: FC = () => {
     }
     if (caculatedIntroduction)
       return [openstatement]
-
     return []
   }
-
+  const fetchedDataRef = useRef<{ conversationData?: any; appParams?: any; precinctNames?: any }>({})
 
   // init
   useEffect(() => {
@@ -239,8 +228,11 @@ const Main: FC = () => {
     }
     (async () => {
       try {
-        const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
-
+        if (!fetchedDataRef.current.conversationData || !fetchedDataRef.current.appParams || !fetchedDataRef.current.precinctNames) {
+          const [conversationData, appParams, precinctNames] = await Promise.all([fetchConversations(), fetchAppParams(), fetchAllProjectName(token)])
+          fetchedDataRef.current = { conversationData, appParams, precinctNames }
+        }
+        const { conversationData, appParams, precinctNames } = fetchedDataRef.current
         // handle current conversation id
         const { data: conversations } = conversationData as { data: ConversationItem[] }
         const _conversationId = getConversationIdFromStorage(APP_ID)
@@ -254,12 +246,15 @@ const Main: FC = () => {
           system_parameters,
           suggested_questions,
           suggested_questions_after_answer,
-        }: any = appParams
+        } = appParams
 
-        setSuggestedQuestions(suggested_questions)
+        const repSuggested_questions = replaceArrText(suggested_questions, precinctNames)
+        setSuggestedQuestions(repSuggested_questions)
+
         setSuggested(suggested_questions_after_answer.enabled)
 
         setLocaleOnClient(APP_INFO.default_language, true)
+
         setNewConversationInfo({
           name: t('app.chat.newChatDefaultName'),
           introduction,
@@ -270,7 +265,11 @@ const Main: FC = () => {
           prompt_variables,
         } as PromptConfig)
         setVisionConfig({
+          detail: Resolution.high,
           ...file_upload?.image,
+          enabled: false,
+          number_limits: 0,
+          transfer_methods: [],
           image_file_size_limit: system_parameters?.system_parameters || 0,
         })
         setConversationList(conversations as ConversationItem[])
@@ -288,7 +287,7 @@ const Main: FC = () => {
         }
       }
     })()
-  }, [])
+  }, [APP_ID, API_KEY])
 
   const [isResponsing, { setTrue: setResponsingTrue, setFalse: setResponsingFalse }] = useBoolean(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
@@ -447,13 +446,11 @@ const Main: FC = () => {
           let newItem: any
           try {
             newItem = await generationConversationName(allConversations[0].id)
-
           } catch (error) {
             newItem = {
               name: 'New Conversation',
             }
           }
-
 
           const newAllConversations = produce(allConversations, (draft: any) => {
             draft[0].name = newItem.name
@@ -645,20 +642,9 @@ const Main: FC = () => {
 
   if (!APP_ID || !APP_INFO || !promptConfig)
     return <Loading type="app"/>
-  const modelConfig: modelConfig = {
-    suggestedQuestions,
-    suggestedQuestionsAfterAnswer: {
-      enabled: hasSuggested,
-    },
-  }
+
   return (
-    <div className="">
-      <Header
-        title={APP_INFO.title}
-        isMobile={isMobile}
-        onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
-      />
+    <div>
       <div className="flex rounded-t-2xl  overflow-hidden">
         {/* sidebar */}
         {!isMobile && renderSidebar()}
@@ -672,11 +658,12 @@ const Main: FC = () => {
             </div>
           </div>
         )}
-        {/* main */}
-        <div className="flex-grow flex flex-col h-[calc(100vh_-_3rem)] overflow-y-auto">
+        {/* main h-[calc(100vh_-_3rem)] */}
+        <div className="flex-grow flex flex-col h-screen  overflow-y-auto">
           <ConfigSence
             conversationName={conversationName}
             hasSetInputs={hasSetInputs}
+            onShowSideBar={showSidebar}
             isPublicVersion={isShowPrompt}
             siteInfo={APP_INFO}
             promptConfig={promptConfig}
@@ -692,7 +679,6 @@ const Main: FC = () => {
                 className="relative grow h-[200px] pc:w-[794px] max-w-full mobile:w-full pb-[66px] mx-auto mb-3.5 overflow-hidden">
                 <div className="h-full overflow-y-auto" ref={chatListDomRef}>
                   <Chat
-                    modelConfig={modelConfig}
                     chatList={chatList}
                     onSend={handleSend}
                     onFeedback={handleFeedback}

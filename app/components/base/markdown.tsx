@@ -60,8 +60,8 @@ export function Markdown(props: { content: string }) {
           thead({ children, ...props }) {
             return (
               <thead {...props}
-                     className="border-b border-neutral-200 bg-neutral-50 font-medium dark:border-white/10 dark:text-neutral-800">
-              {children}
+                className="border-b border-neutral-200 bg-neutral-50 font-medium dark:border-white/10 dark:text-neutral-800">
+                {children}
               </thead>
             )
           },

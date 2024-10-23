@@ -8,18 +8,15 @@ import s from './style.module.css'
 import Answer from './answer'
 import Question from './question'
 import type { FeedbackFunc, OnSend } from './type'
-import type { ChatItem, VisionFile, modelConfig, VisionSettings } from '@/types/app'
+import type { ChatItem, VisionSettings } from '@/types/app'
 import { TransferMethod } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
 import Toast from '@/app/components/base/toast'
-import TryToAsk from './try-to-ask'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
 
-
 export type IChatProps = {
-  modelConfig: modelConfig,
   chatList: ChatItem[]
   /**
    * Whether to display the editing area and rating status
@@ -31,7 +28,7 @@ export type IChatProps = {
   isHideSendInput?: boolean
   onFeedback?: FeedbackFunc
   checkCanSend?: () => boolean
-  onSend?: OnSend,
+  onSend?: OnSend
   useCurrentUserAvatar?: boolean
   isResponsing?: boolean
   controlClearQuery?: number
@@ -40,12 +37,12 @@ export type IChatProps = {
 
 const Chat: FC<IChatProps> = ({
   chatList,
-  modelConfig,
   feedbackDisabled = false,
   isHideSendInput = false,
   onFeedback,
   checkCanSend,
-  onSend = () => { },
+  onSend = () => {
+  },
   useCurrentUserAvatar,
   isResponsing,
   controlClearQuery,
@@ -121,10 +118,11 @@ const Chat: FC<IChatProps> = ({
     }
   }
 
-  const chatFooterRef = useRef<HTMLDivElement>(null)
-  const chatFooterInnerRef = useRef<HTMLDivElement>(null)
-  const { suggestedQuestions, suggestedQuestionsAfterAnswer } = modelConfig
-  const hasTryToAsk = suggestedQuestionsAfterAnswer?.enabled && !!suggestedQuestions?.length && onSend
+  // 注释掉-更多问题和建议
+  // const chatFooterRef = useRef<HTMLDivElement>(null)
+  // const chatFooterInnerRef = useRef<HTMLDivElement>(null)
+  // const { suggestedQuestions, suggestedQuestionsAfterAnswer } = modelConfig
+  // const hasTryToAsk = suggestedQuestionsAfterAnswer?.enabled && !!suggestedQuestions?.length && onSend
 
   return (
     <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
@@ -187,19 +185,19 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div className={cn(!feedbackDisabled && '!left-3.5 !right-3.5', 'absolute z-10 bottom-0 left-0 right-0')}>
-            <div className='p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto'>
+            <div className="p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto">
               {
                 visionConfig?.enabled && (
                   <>
-                    <div className='absolute bottom-2 left-2 flex items-center'>
+                    <div className="absolute bottom-2 left-2 flex items-center">
                       <ChatImageUploader
                         settings={visionConfig}
                         onUpload={onUpload}
                         disabled={files.length >= visionConfig.number_limits}
                       />
-                      <div className='mx-1 w-[1px] h-4 bg-black/5' />
+                      <div className="mx-1 w-[1px] h-4 bg-black/5"/>
                     </div>
-                    <div className='pl-[52px]'>
+                    <div className="pl-[52px]">
                       <ImageList
                         list={files}
                         onRemove={onRemove}
@@ -225,7 +223,7 @@ const Chat: FC<IChatProps> = ({
               <div className="absolute bottom-2 right-2 flex items-center h-8">
                 <div className={`${s.count} mr-4 h-5 leading-5 text-sm bg-gray-50 text-gray-500`}>{query.trim().length}</div>
                 <Tooltip
-                  selector='send-tip'
+                  selector="send-tip"
                   htmlContent={
                     <div>
                       <div>{t('common.operation.send')} Enter</div>

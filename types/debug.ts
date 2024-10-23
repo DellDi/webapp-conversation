@@ -1,4 +1,5 @@
 import type { AgentStrategy, ModelModeType, RETRIEVE_TYPE, ToolItem, TtsAutoPlay } from '@/types/app'
+
 export type Inputs = Record<string, string | number | object>
 
 export enum PromptMode {

@@ -2,6 +2,7 @@ import type { PromptVariable, UserInputFormItem } from '@/types/app'
 
 export function replaceVarWithValues(str: string, promptVariables: PromptVariable[], inputs: Record<string, any>) {
   return str.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+    console.log('🚀 ~ file:prompt.ts, line:5-----', key)
     const name = inputs[key]
     if (name)
       return name

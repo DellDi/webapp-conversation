@@ -160,6 +160,7 @@ const handleStream = (
   let buffer = ''
   let bufferObj: Record<string, any>
   let isFirstMessage = true
+
   function read() {
     let hasError = false
     reader?.read().then((result: any) => {
@@ -174,8 +175,7 @@ const handleStream = (
           if (message.startsWith('data: ')) { // check if it starts with data:
             try {
               bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
-            }
-            catch (e) {
+            } catch (e) {
               // mute handle message cut off
               onData('', isFirstMessage, {
                 conversationId: bufferObj?.conversation_id,
@@ -202,36 +202,27 @@ const handleStream = (
                 messageId: bufferObj.id,
               })
               isFirstMessage = false
-            }
-            else if (bufferObj.event === 'agent_thought') {
+            } else if (bufferObj.event === 'agent_thought') {
               onThought?.(bufferObj as ThoughtItem)
-            }
-            else if (bufferObj.event === 'message_file') {
+            } else if (bufferObj.event === 'message_file') {
               onFile?.(bufferObj as VisionFile)
-            }
-            else if (bufferObj.event === 'message_end') {
+            } else if (bufferObj.event === 'message_end') {
               onMessageEnd?.(bufferObj as MessageEnd)
-            }
-            else if (bufferObj.event === 'message_replace') {
+            } else if (bufferObj.event === 'message_replace') {
               onMessageReplace?.(bufferObj as MessageReplace)
-            }
-            else if (bufferObj.event === 'workflow_started') {
+            } else if (bufferObj.event === 'workflow_started') {
               onWorkflowStarted?.(bufferObj as WorkflowStartedResponse)
-            }
-            else if (bufferObj.event === 'workflow_finished') {
+            } else if (bufferObj.event === 'workflow_finished') {
               onWorkflowFinished?.(bufferObj as WorkflowFinishedResponse)
-            }
-            else if (bufferObj.event === 'node_started') {
+            } else if (bufferObj.event === 'node_started') {
               onNodeStarted?.(bufferObj as NodeStartedResponse)
-            }
-            else if (bufferObj.event === 'node_finished') {
+            } else if (bufferObj.event === 'node_finished') {
               onNodeFinished?.(bufferObj as NodeFinishedResponse)
             }
           }
         })
         buffer = lines[lines.length - 1]
-      }
-      catch (e) {
+      } catch (e) {
         onData('', false, {
           conversationId: undefined,
           messageId: '',
@@ -245,6 +236,7 @@ const handleStream = (
         read()
     })
   }
+
   read()
 }
 
@@ -295,15 +287,14 @@ const baseFetch = (url: string, fetchOptions: any, { needAllResponseContent }: I
                   return
                 }
                 default:
-                  // eslint-disable-next-line no-new
+                // eslint-disable-next-line no-new
                   new Promise(() => {
                     bodyJson.then((data: any) => {
                       Toast.notify({ type: 'error', message: data.message })
                     })
                   })
               }
-            }
-            catch (e) {
+            } catch (e) {
               Toast.notify({ type: 'error', message: `${e}` })
             }
 
@@ -394,13 +385,12 @@ export const ssePost = (
     options.body = JSON.stringify(body)
   }
 
-  options.headers['Authorization'] = `Bearer ${API_KEY}`
+  options.headers.Authorization = `Bearer ${API_KEY}`
 
   globalThis.fetch(urlWithPrefix, options)
     .then((res: any) => {
-      console.log("🚀 ~ .then ~ res:", res)
       if (!/^(2|3)\d{2}$/.test(res.status)) {
-        // eslint-disable-next-line no-new
+      // eslint-disable-next-line no-new
         new Promise(() => {
           res.json().then((data: any) => {
             Toast.notify({ type: 'error', message: data.message || 'Server Error' })
@@ -443,3 +433,5 @@ export const put = (url: string, options = {}, otherOptions?: IOtherOptions) => 
 export const del = (url: string, options = {}, otherOptions?: IOtherOptions) => {
   return request(url, Object.assign({}, options, { method: 'DELETE' }), otherOptions)
 }
+
+

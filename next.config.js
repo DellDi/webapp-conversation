@@ -19,7 +19,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   webpack: (config, { dev, isServer }) => {
-    console.log('🚀 ~ file:next.config.js, line:22-----', dev, isServer)
     if (dev) {
       config.plugins.push(codeInspectorPlugin({ bundler: 'webpack' }))
     }

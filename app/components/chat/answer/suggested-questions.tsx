@@ -3,12 +3,12 @@ import { memo } from 'react'
 import type { ChatItem } from '@/types/app'
 
 type SuggestedQuestionsProps = {
-  item: ChatItem,
+  item: ChatItem
   onSend?: (message: string) => void
 }
 const SuggestedQuestions: FC<SuggestedQuestionsProps> = ({
   item,
-  onSend
+  onSend,
 }) => {
   const {
     isOpeningStatement,
@@ -19,11 +19,11 @@ const SuggestedQuestions: FC<SuggestedQuestionsProps> = ({
     return null
 
   return (
-    <div className='flex flex-wrap'>
+    <div className="flex flex-wrap">
       {suggestedQuestions.filter(q => !!q && q.trim()).map((question, index) => (
         <div
           key={index}
-          className='mt-1 mr-1 max-w-full last:mr-0 shrink-0 py-[5px] leading-[18px] items-center px-4 rounded-lg border border-gray-200 shadow-xs bg-white text-xs font-medium text-primary-600 cursor-pointer'
+          className="mt-1 mr-1 max-w-full last:mr-0 shrink-0 py-[5px] leading-[18px] items-center px-4 rounded-lg border border-gray-200 shadow-xs bg-white text-xs font-medium text-primary-600 cursor-pointer"
           onClick={() => onSend?.(question)}
         >
           {question}
