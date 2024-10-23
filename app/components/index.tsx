@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
+
 'use client'
 import type { FC } from 'react'
 import React, { useEffect, useRef, useState } from 'react'
@@ -31,7 +31,7 @@ import AppUnavailable from '@/app/components/app-unavailable'
 import { API_KEY, APP_ID, APP_INFO, isShowPrompt, promptTemplate } from '@/config'
 import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
-import { getCustomUrlParams } from '@/utils'
+import { getCustomUrlParams } from '@/utils/string'
 
 const Main: FC = () => {
   const { t } = useTranslation()
@@ -180,7 +180,7 @@ const Main: FC = () => {
       chatListDomRef.current.scrollTop = chatListDomRef.current.scrollHeight
   }, [chatList, currConversationId])
   // user can not edit inputs if user had send message
-  const canEditInpus = !chatList.some(item => item.isAnswer === false) && isNewConversation
+  const canEditInpus = !chatList.some(item => !item.isAnswer) && isNewConversation
   const createNewChat = () => {
     // if new chat is already exist, do not create new chat
     if (conversationList.some(item => item.id === '-1'))
@@ -279,6 +279,7 @@ const Main: FC = () => {
 
         setInited(true)
       } catch (e: any) {
+        console.log('🚀 ~ file:index.tsx, line:282-----', e)
         if (e.status === 404) {
           setAppUnavailable(true)
         } else {
@@ -637,7 +638,7 @@ const Main: FC = () => {
   }
 
   if (appUnavailable)
-    return <AppUnavailable isUnknwonReason={isUnknwonReason}
+    return <AppUnavailable isUnknownReason={isUnknwonReason}
                            errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''}/>
 
   if (!APP_ID || !APP_INFO || !promptConfig)

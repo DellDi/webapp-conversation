@@ -90,6 +90,12 @@ export const generationConversationName = async (id: string) => {
   return post(`conversations/${id}/name`, { body: { auto_generate: true } })
 }
 
+interface Organization {
+  organizationNature: string;
+  organizationId: string;
+  childOrganizations?: Organization[];
+}
+
 const commonFetch = async (url: string, method: string, headers: HeadersInit, body?: any) => {
   const axiosHeaders = new AxiosHeaders()
   if (headers instanceof Headers) {
@@ -117,9 +123,9 @@ const commonFetch = async (url: string, method: string, headers: HeadersInit, bo
   try {
     const response = await axios(url, options)
     if (!response.status || response.status >= 400) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      return new Error(`HTTP error! status: ${response.status}`)
     }
-    return response.data
+    return response.data.resultData
   } catch (error) {
     console.error('Fetch error:', error)
     throw error
@@ -138,17 +144,17 @@ export const fetchAllProjectName = async (token: string) => {
   url.searchParams.append('selectAll', 'false')
   const projectIds: string[] = []
   try {
-    const resOrg = await commonFetch(url.toString(), 'GET', baseHeader)
-    const organizationVos = resOrg
-    const orgTree = organizationVos.resultData.organizationVos
+    const organizationVos = await commonFetch(url.toString(), 'GET', baseHeader)
+    const orgTree = organizationVos.organizationVos
     // 递归查找 orgTree 中的所有项目 id
-    const findProjectIds = (tree: any) => {
+    const findProjectIds = (tree: Organization[]) => {
       if (tree && tree.length === 0)
         return
       for (const item of tree) {
         if (item.organizationNature === 'propertyProject') {
           projectIds.push(item.organizationId)
         } else {
+          item?.childOrganizations &&
           findProjectIds(item.childOrganizations)
         }
       }

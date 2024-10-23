@@ -10,10 +10,10 @@ import Toast from '@/app/components/base/toast'
 import Select from '@/app/components/base/select'
 import { DEFAULT_VALUE_MAX_LEN } from '@/config'
 import { Bars3Icon } from '@heroicons/react/24/solid'
-import { getCustomUrlParams } from '@/utils'
+import { getCustomUrlParams } from '@/utils/string'
 
 // regex to match the {{}} and replace it with a span
-const regex = /\{\{([^}]+)\}\}/g
+const regex = /\{\{([^}]+)}}/g
 
 export type IWelcomeProps = {
   conversationName: string
@@ -105,10 +105,9 @@ const Welcome: FC<IWelcomeProps> = ({
   const highLightPromoptTemplate = (() => {
     if (!promptConfig)
       return ''
-    const res = promptConfig.prompt_template.replace(regex, (match, p1) => {
+    return promptConfig.prompt_template.replace(regex, (match, p1) => {
       return `<span class='text-gray-800 font-bold'>${inputs?.[p1] ? inputs?.[p1] : match}</span>`
     })
-    return res
   })()
 
   const renderHeader = () => {
@@ -311,17 +310,6 @@ const Welcome: FC<IWelcomeProps> = ({
     )
   }
 
-  const renderHasSetInputs = () => {
-    if ((!isPublicVersion && !canEidtInpus) || !hasVar)
-      return null
-
-    return (
-      <div
-        className="pt-[88px] mb-5"
-      >
-        {isPublicVersion ? renderHasSetInputsPublic() : renderHasSetInputsPrivate()}
-      </div>)
-  }
 
   return (
     <div className="relative mobile:min-h-[48px] tablet:min-h-[64px]">

@@ -1,8 +1,8 @@
+import React from 'react'
 import { getLocaleOnServer } from '@/i18n/server'
-
 import './styles/globals.css'
 import './styles/markdown.scss'
-// {/* className="overflow-x-auto" */ }
+
 const LocaleLayout = ({
   children,
 }: {
@@ -11,13 +11,13 @@ const LocaleLayout = ({
   const locale = getLocaleOnServer()
   return (
     <html lang={locale ?? 'en'} className="h-full">
-      <body className="h-full">
-        <div >
-          <div className="w-screen h-screen min-w-[300px]">
-            {children}
-          </div>
-        </div>
-      </body>
+    <body className="h-full">
+    <div>
+      <div className="w-screen h-screen min-w-[300px]">
+        {children}
+      </div>
+    </div>
+    </body>
     </html>
   )
 }

@@ -3,7 +3,7 @@ import type { FC } from 'react'
 import React from 'react'
 import AppIcon from '@/app/components/base/app-icon'
 import { PencilSquareIcon } from '@heroicons/react/24/outline'
-import { getCustomUrlParams } from '@/utils'
+import { getCustomUrlParams } from '@/utils/string'
 
 export type IHeaderProps = {
   title: string
