@@ -40,9 +40,9 @@ const Header: FC<IHeaderProps> = ({
       {isMobile
         ? (
           <div className="flex items-center justify-center h-8 w-8 cursor-pointer"
-            onClick={() => onCreateNewChat?.()}
+               onClick={() => onCreateNewChat?.()}
           >
-            <PencilSquareIcon className="h-4 w-4 text-gray-500" />
+            <PencilSquareIcon className="h-4 w-4 text-gray-500"/>
           </div>)
         : <div></div>}
     </div>
