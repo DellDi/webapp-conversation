@@ -1,4 +1,3 @@
-
 'use client'
 import type { FC } from 'react'
 import React, { useEffect, useRef, useState } from 'react'
@@ -660,7 +659,7 @@ const Main: FC = () => {
           </div>
         )}
         {/* main h-[calc(100vh_-_3rem)] */}
-        <div className="flex-grow flex flex-col h-screen  overflow-y-auto">
+        <div className="flex-grow flex flex-col h-screen overflow-y-auto bg-cyan-50 bg-opacity-30">
           <ConfigSence
             conversationName={conversationName}
             hasSetInputs={hasSetInputs}
