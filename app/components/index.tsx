@@ -38,7 +38,7 @@ interface MainProps {
 }
 
 const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
-  console.log('🚀 ~ file:index.tsx, line:41-----', userName, urlToken)
+  console.info('🚀 ~ file:index.tsx, line:41-----', userName, urlToken)
   const { t } = useTranslation()
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile

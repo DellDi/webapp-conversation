@@ -1,5 +1,4 @@
 import React from 'react'
-import { getLocaleOnServer } from '@/i18n/server'
 import './styles/globals.css'
 import './styles/markdown.scss'
 
@@ -8,9 +7,8 @@ const LocaleLayout = ({
 }: {
   children: React.ReactNode
 }) => {
-  const locale = getLocaleOnServer()
   return (
-    <html lang={locale ?? 'en'} className="h-full">
+    <html lang={'zh'} className="h-full">
     <body className="h-full">
     <div>
       <div className="w-screen h-screen min-w-[300px]">

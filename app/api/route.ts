@@ -1,10 +1,12 @@
 import { type NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     // 获取请求的路由参数
-    const { searchParams } = req.nextUrl
+    const { searchParams } = new URL(req.url)
     const userName = searchParams.get('userName')
     const token = searchParams.get('token')
     console.log('🚀 ~ file:route.ts, line:8-----', userName, token)

@@ -1,3 +1,4 @@
+'use client'
 import { Bars3Icon } from '@heroicons/react/24/solid'
 import type { FC } from 'react'
 import React from 'react'

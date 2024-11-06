@@ -1,4 +1,3 @@
-// app/page.tsx
 import type { FC } from 'react'
 import React from 'react'
 import Main from '@/app/components'
@@ -18,8 +17,7 @@ const Home: FC<HomeProps> = ({ searchParams }) => {
       </div>
     )
   }
-  // 这里可以添加验证逻辑
-  // 例如，检查 token 是否有效
+
   return <Main userName={userName} token={token}/>
 }
 
