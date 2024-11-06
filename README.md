@@ -12,7 +12,7 @@ NEXT_PUBLIC_APP_KEY=
 NEXT_PUBLIC_API_URL=
 ```
 
-Config more in `config/index.ts` file:   
+Config more in `config/route.ts` file:   
 ```js
 export const APP_INFO: AppInfo = {
   title: 'Chat APP',

@@ -32,7 +32,13 @@ import type { Annotation as AnnotationType } from '@/types/log'
 import { addFileInfos, sortAgentSorts } from '@/utils/tools'
 import { getCustomUrlParams } from '@/utils/string'
 
-const Main: FC = () => {
+interface MainProps {
+  userName: string
+  token: string
+}
+
+const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
+  console.log('🚀 ~ file:index.tsx, line:41-----', userName, urlToken)
   const { t } = useTranslation()
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile

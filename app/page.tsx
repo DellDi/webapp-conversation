@@ -1,11 +1,26 @@
+// app/page.tsx
 import type { FC } from 'react'
 import React from 'react'
 import Main from '@/app/components'
+import GlobeError from '@/app/components/custom/error'
 
-const App: FC = () => {
-  return (
-    <Main />
-  )
+interface HomeProps {
+  searchParams: { userName?: string; token?: string }
 }
 
-export default React.memo(App)
+const Home: FC<HomeProps> = ({ searchParams }) => {
+  const { userName, token } = searchParams
+
+  if (!userName || !token) {
+    return (
+      <div className="flex flex-col justify-center align-center h-screen">
+        <GlobeError/>
+      </div>
+    )
+  }
+  // 这里可以添加验证逻辑
+  // 例如，检查 token 是否有效
+  return <Main userName={userName} token={token}/>
+}
+
+export default Home
