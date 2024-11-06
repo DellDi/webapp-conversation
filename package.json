@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 8500",
+    "dev": "next dev -p 3020",
     "build": "next build",
     "start": "next start -p 3020",
     "lint": "next lint",
@@ -11,6 +11,7 @@
     "eslint-fix": "eslint . --fix",
     "prepare": "husky install ./.husky"
   },
+  "packageManager": "pnpm@9.12.2",
   "dependencies": {
     "@floating-ui/react": "^0.26.25",
     "@formatjs/intl-localematcher": "^0.2.32",

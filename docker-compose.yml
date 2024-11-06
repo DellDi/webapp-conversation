@@ -1,0 +1,13 @@
+services:
+  chat-ai-app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_APP_ID: b67a735f-656e-4cb9-a569-93827d0f5c35
+        NEXT_PUBLIC_APP_KEY: app-2ykTDMuxt9JDliYjmukHOwg1
+        NEXT_PUBLIC_API_URL: https://poc.new-see.com:88/v1
+      dockerfile: Dockerfile
+    ports:
+      - "3020:3020"
+    environment:
+      - NODE_ENV=production
