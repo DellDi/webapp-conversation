@@ -34,6 +34,7 @@ const Welcome: FC<IWelcomeProps> = ({
   isPublicVersion,
   siteInfo,
   promptConfig,
+  onShowSideBar,
   onStartChat,
   canEditInputs,
   savedInputs,
@@ -315,7 +316,7 @@ const Welcome: FC<IWelcomeProps> = ({
 
     return (
       <div
-        className='pt-[88px] mb-5'
+        className="pt-[88px] mb-5"
       >
         {isPublicVersion ? renderHasSetInputsPublic() : renderHasSetInputsPrivate()}
       </div>)
