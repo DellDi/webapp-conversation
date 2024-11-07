@@ -44,7 +44,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
   const isMobile = media === MediaType.mobile
   const hasSetAppConfig = APP_ID && API_KEY
   const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
-  const [isUnknwonReason, setIsUnknwonReason] = useState<boolean>(false)
+  const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
   const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
   const [inited, setInited] = useState<boolean>(false)
   // in mobile, show sidebar by click button
@@ -97,7 +97,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
     setCurrInputs(inputs)
     setChatStarted()
     // parse variables in introduction
-    setChatList(generateNewChatListWithOpenstatement('', inputs))
+    setChatList(generateNewChatListWithOpenStatement('', inputs))
   }
   const hasSetInputs = (() => {
     if (!isNewConversation)
@@ -131,10 +131,10 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
     }
 
     // update chat list of current conversation
-    if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponsing) {
+    if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
       fetchChatList(currConversationId).then((res: any) => {
         const { data } = res
-        const newChatList: ChatItem[] = generateNewChatListWithOpenstatement(notSyncToStateIntroduction, notSyncToStateInputs)
+        const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
 
         data.forEach((item: any) => {
           newChatList.push({
@@ -158,7 +158,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
     }
 
     if (isNewConversation && isChatStarted)
-      setChatList(generateNewChatListWithOpenstatement())
+      setChatList(generateNewChatListWithOpenStatement())
   }
   useEffect(handleConversationSwitch, [currConversationId, inited])
 
@@ -185,7 +185,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
       chatListDomRef.current.scrollTop = chatListDomRef.current.scrollHeight
   }, [chatList, currConversationId])
   // user can not edit inputs if user had send message
-  const canEditInpus = !chatList.some(item => !item.isAnswer) && isNewConversation
+  const canEditInputs = !chatList.some(item => item.isAnswer === false) && isNewConversation
   const createNewChat = () => {
     // if new chat is already exist, do not create new chat
     if (conversationList.some(item => item.id === '-1'))
@@ -206,21 +206,23 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
   const [hasSuggested, setSuggested, getSuggested] = useGetState(false)
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([])
   // sometime introduction is not applied to state
-  const generateNewChatListWithOpenstatement = (introduction?: string, inputs?: Record<string, any> | null) => {
-    let caculatedIntroduction = introduction || conversationIntroduction || ''
-    const caculatedPromptVariables = inputs || currInputs || null
-    if (caculatedIntroduction && caculatedPromptVariables)
-      caculatedIntroduction = replaceVarWithValues(caculatedIntroduction, promptConfig?.prompt_variables || [], caculatedPromptVariables)
-    const openstatement = {
+  const generateNewChatListWithOpenStatement = (introduction?: string, inputs?: Record<string, any> | null) => {
+    let calculatedIntroduction = introduction || conversationIntroduction || ''
+    const calculatedPromptVariables = inputs || currInputs || null
+    if (calculatedIntroduction && calculatedPromptVariables)
+      calculatedIntroduction = replaceVarWithValues(calculatedIntroduction, promptConfig?.prompt_variables || [], calculatedPromptVariables)
+
+    const openStatement = {
       id: `${Date.now()}`,
-      content: caculatedIntroduction,
+      content: calculatedIntroduction,
       isAnswer: true,
       feedbackDisabled: true,
       isOpeningStatement: isShowPrompt,
       suggestedQuestions,
     }
-    if (caculatedIntroduction)
-      return [openstatement]
+    if (calculatedIntroduction)
+      return [openStatement]
+
     return []
   }
   const fetchedDataRef = useRef<{ conversationData?: any; appParams?: any; precinctNames?: any }>({})
@@ -287,15 +289,16 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
         console.log('🚀 ~ file:index.tsx, line:282-----', e)
         if (e.status === 404) {
           setAppUnavailable(true)
-        } else {
-          setIsUnknwonReason(true)
+        }
+        else {
+          setIsUnknownReason(true)
           setAppUnavailable(true)
         }
       }
     })()
   }, [APP_ID, API_KEY])
 
-  const [isResponsing, { setTrue: setResponsingTrue, setFalse: setResponsingFalse }] = useBoolean(false)
+  const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const { notify } = Toast
   const logError = (message: string) => {
@@ -312,8 +315,8 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
     const inputLens = Object.values(currInputs).length
     const promptVariablesLens = promptConfig.prompt_variables.length
 
-    const emytyInput = inputLens < promptVariablesLens || Object.values(currInputs).find(v => !v)
-    if (emytyInput) {
+    const emptyInput = inputLens < promptVariablesLens || Object.values(currInputs).find(v => !v)
+    if (emptyInput) {
       logError(t('app.errorMessage.valueOfVarRequired'))
       return false
     }
@@ -323,7 +326,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
   const [controlFocus, setControlFocus] = useState(0)
   const [messageTaskId, setMessageTaskId] = useState('')
   const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
-  const [isResponsingConIsCurrCon, setIsResponsingConCurrCon, getIsResponsingConIsCurrCon] = useGetState(true)
+  const [isRespondingConIsCurrCon, setIsRespondingConCurrCon, getIsRespondingConIsCurrCon] = useGetState(true)
   const [userQuery, setUserQuery] = useState('')
   const updateCurrentQA = ({
     responseItem,
@@ -349,7 +352,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
   }
 
   const handleSend = async (message: string, files?: VisionFile[]) => {
-    if (isResponsing) {
+    if (isResponding) {
       notify({ type: 'info', message: t('app.errorMessage.waitForResponse') })
       return
     }
@@ -371,7 +374,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
       })
     }
 
-    // qustion
+    // question
     const questionId = `question-${Date.now()}`
     const questionItem = {
       id: questionId,
@@ -405,7 +408,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
     const prevTempNewConversationId = getCurrConversationId() || '-1'
     let tempNewConversationId = ''
 
-    setResponsingTrue()
+    setRespondingTrue()
     sendChatMessage(data, {
       getAbortController: (abortController) => {
         setAbortController(abortController)
@@ -433,7 +436,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
         setMessageTaskId(taskId)
         // has switched to other conversation
         if (prevTempNewConversationId !== getCurrConversationId()) {
-          setIsResponsingConCurrCon(false)
+          setIsRespondingConCurrCon(false)
           return
         }
         updateCurrentQA({
@@ -467,7 +470,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
         resetNewConversationInputs()
         setChatNotStarted()
         setCurrConversationId(tempNewConversationId, APP_ID, true)
-        setResponsingFalse()
+        setRespondingFalse()
       },
       onFile(file) {
         const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
@@ -504,7 +507,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
         }
         // has switched to other conversation
         if (prevTempNewConversationId !== getCurrConversationId()) {
-          setIsResponsingConCurrCon(false)
+          setIsRespondingConCurrCon(false)
           return false
         }
 
@@ -559,7 +562,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
         ))
       },
       onError() {
-        setResponsingFalse()
+        setRespondingFalse()
         // role back placeholder answer
         setChatList(produce(getChatList(), (draft) => {
           draft.splice(draft.findIndex(item => item.id === placeholderAnswerId), 1)
@@ -643,8 +646,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
   }
 
   if (appUnavailable)
-    return <AppUnavailable isUnknownReason={isUnknwonReason}
-                           errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''}/>
+    return <AppUnavailable isUnknownReason={isUnknownReason} errMessage={!hasSetAppConfig ? 'Please set APP_ID and API_KEY in config/index.tsx' : ''} />
 
   if (!APP_ID || !APP_INFO || !promptConfig)
     return <Loading type="app"/>
@@ -674,7 +676,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
             siteInfo={APP_INFO}
             promptConfig={promptConfig}
             onStartChat={handleStartChat}
-            canEidtInpus={canEditInpus}
+            canEditInputs={canEditInputs}
             savedInputs={currInputs as Record<string, any>}
             onInputsChange={setCurrInputs}
           ></ConfigSence>
@@ -688,7 +690,7 @@ const Main: FC<MainProps> = ({ userName, token: urlToken }) => {
                     chatList={chatList}
                     onSend={handleSend}
                     onFeedback={handleFeedback}
-                    isResponsing={isResponsing}
+                    isResponding={isResponding}
                     checkCanSend={checkCanSend}
                     visionConfig={visionConfig}
                   />

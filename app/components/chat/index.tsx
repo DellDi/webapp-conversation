@@ -30,7 +30,7 @@ export type IChatProps = {
   checkCanSend?: () => boolean
   onSend?: OnSend
   useCurrentUserAvatar?: boolean
-  isResponsing?: boolean
+  isResponding?: boolean
   controlClearQuery?: number
   visionConfig?: VisionSettings
 }
@@ -44,7 +44,7 @@ const Chat: FC<IChatProps> = ({
   onSend = () => {
   },
   useCurrentUserAvatar,
-  isResponsing,
+  isResponding,
   controlClearQuery,
   visionConfig,
 }) => {
@@ -96,7 +96,7 @@ const Chat: FC<IChatProps> = ({
     if (!files.find(item => item.type === TransferMethod.local_file && !item.fileId)) {
       if (files.length)
         onClear()
-      if (!isResponsing)
+      if (!isResponding)
         setQuery('')
     }
   }
@@ -137,7 +137,7 @@ const Chat: FC<IChatProps> = ({
               onSend={onSend}
               feedbackDisabled={feedbackDisabled}
               onFeedback={onFeedback}
-              isResponsing={isResponsing && isLast}
+              isResponding={isResponding && isLast}
             />
           }
           return (

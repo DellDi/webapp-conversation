@@ -10,7 +10,7 @@ export const APP_INFO: AppInfo = {
   description: '你的物业智慧服务小帮手',
   copyright: 'newsee',
   privacy_policy: '',
-  default_language: 'zh-Hans',
+  default_language: 'en',
 }
 
 export const isShowPrompt = true
