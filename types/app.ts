@@ -2,6 +2,12 @@ import type { Annotation } from './log'
 import type { Locale } from '@/i18n'
 import type { ThoughtItem } from '@/app/components/chat/type'
 
+export enum Theme {
+  light = 'light',
+  dark = 'dark',
+  system = 'system',
+}
+
 export type PromptVariable = {
   key: string
   name: string
