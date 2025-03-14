@@ -550,7 +550,7 @@ const Main: FC<IMainProps> = () => {
             newItem = await generationConversationName(allConversations[0].id);
           } catch (error) {
             newItem = {
-              name: "New Conversation",
+              name: "新的对话",
             };
           }
 
