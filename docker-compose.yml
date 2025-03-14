@@ -6,6 +6,7 @@ services:
         NEXT_PUBLIC_APP_ID: 59a6b61c-3834-4f72-81f7-b7a816833ec0
         NEXT_PUBLIC_APP_KEY: app-ac5u0SXBSfycKSb9W2jaFbFI
         NEXT_PUBLIC_API_URL: https://dify.yswg360.com/v1
+        NEXT_PUBLIC_API_ORG_URL: https://qw.yswg360.com
       dockerfile: Dockerfile
     ports:
       - "3020:3020"

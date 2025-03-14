@@ -244,7 +244,7 @@ const Main: FC<IMainProps> = () => {
     );
   };
 
-  const { token } = getCustomUrlParams();
+  const { token, userName } = getCustomUrlParams();
   // 新增建议功能
   const [hasSuggested, setSuggested, getSuggested] = useGetState(false);
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
@@ -297,7 +297,7 @@ const Main: FC<IMainProps> = () => {
             await Promise.all([
               fetchConversations(),
               fetchAppParams(),
-              fetchAllProjectName(token),
+              fetchAllProjectName(token || ""),
             ]);
           fetchedDataRef.current = {
             conversationData,

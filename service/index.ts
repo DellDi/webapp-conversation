@@ -15,7 +15,8 @@ import type {
 } from './base'
 import { get, post, ssePost } from './base'
 import type { Feedbacktype, ParametersRes } from '@/types/app'
-import { API_URL } from '@/config'
+import { API_URL, API_ORG_URL } from '@/config'
+import { headersMap, returnAgentType } from '@/utils'
 
 export const sendChatMessage = async (
   body: Record<string, any>,
@@ -132,13 +133,16 @@ const commonFetch = async (url: string, method: string, headers: HeadersInit, bo
   }
 }
 export const fetchAllProjectName = async (token: string) => {
-  const urlObj = new URL(API_URL)
+  const urlObj = new URL(API_ORG_URL)
   const baseURl = `${urlObj.protocol}//${urlObj.hostname}`
   const url = new URL(`${baseURl}/api/view/organization/get-orgtree-form-standard`)
+  // 获取请求头 - 按照端类型
+  const agentType = returnAgentType()
+  const { appId, appClientType } = headersMap[agentType]
   const baseHeader = {
     token,
-    appclienttype: 'mb',
-    appid: '4ce19ca8fcd150a4',
+    appclienttype: appClientType,
+    appid: appId,
   }
   url.searchParams.append('dimon', 'adm')
   url.searchParams.append('selectAll', 'false')
@@ -155,22 +159,22 @@ export const fetchAllProjectName = async (token: string) => {
           projectIds.push(item.organizationId)
         } else {
           item?.childOrganizations &&
-          findProjectIds(item.childOrganizations)
+            findProjectIds(item.childOrganizations)
         }
       }
     }
     findProjectIds(orgTree)
+    // getPrecinctInfoByRefOrgIdList \ getPrecinctByOrgIds
+    const url2 = new URL(`${baseURl}/api/owner/owner-rest/getPrecinctByOrgIdsAndPrecinctformat`)
+    const resPriceList = await commonFetch(url2.toString(), 'POST', baseHeader, projectIds) as [{
+      orgId: number;
+      precinctId: number;
+      precinctName: string
+    }]
+    return resPriceList.map(item => item.precinctName)
   } catch (error) {
-    console.log('🚀 ~ file:index.ts, line:115-----', error)
+    return ['']
   }
-  // getPrecinctInfoByRefOrgIdList \ getPrecinctByOrgIds
-  const url2 = new URL(`${baseURl}/api/owner/owner-rest/getPrecinctByOrgIdsAndPrecinctformat`)
-  const resPriceList = await commonFetch(url2.toString(), 'POST', baseHeader, projectIds) as [{
-    orgId: number;
-    precinctId: number;
-    precinctName: string
-  }]
-  return resPriceList.map(item => item.precinctName)
 }
 
 export const replaceArrText = (arr: string[], precinctNameList: string[]): string[] => {
