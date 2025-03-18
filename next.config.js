@@ -3,7 +3,7 @@ const { codeInspectorPlugin } = require('code-inspector-plugin')
 
 const nextConfig = {
   // 设置应用的基础路径为 /chat
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '/chat',
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   productionBrowserSourceMaps: false, // enable browser source map generation during the production build
   // Configure pageExtensions to include md and mdx
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
