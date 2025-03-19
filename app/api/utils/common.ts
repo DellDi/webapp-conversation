@@ -1,7 +1,8 @@
 import { type NextRequest } from 'next/server'
-import { ChatClient } from 'dify-client'
+// import { ChatClient } from 'dify-client'
 import { v4 } from 'uuid'
 import { API_KEY, API_URL, APP_ID } from '@/config'
+import { ChatClient } from '@/app/dify-client'
 
 const userPrefix = `user_${APP_ID}:`
 
