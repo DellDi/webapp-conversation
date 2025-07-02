@@ -127,9 +127,9 @@ const Main: FC<IMainProps> = () => {
     return isChatStarted;
   })();
 
-  const conversationName =
-    currConversationInfo?.name || (t("app.chat.newChatDefaultName") as string);
-  const conversationIntroduction = currConversationInfo?.introduction || "";
+  const conversationName = currConversationInfo?.name || t('app.chat.newChatDefaultName') as string
+  const conversationIntroduction = currConversationInfo?.introduction || ''
+  const suggestedQuestions = currConversationInfo?.suggested_questions || []
 
   const handleConversationSwitch = () => {
     if (!inited) return;
@@ -147,10 +147,12 @@ const Main: FC<IMainProps> = () => {
       setExistConversationInfo({
         name: item?.name || "",
         introduction: notSyncToStateIntroduction,
-      });
-    } else {
-      notSyncToStateInputs = newConversationInputs;
-      setCurrInputs(notSyncToStateInputs);
+        suggested_questions: suggestedQuestions,
+      })
+    }
+    else {
+      notSyncToStateInputs = newConversationInputs
+      setCurrInputs(notSyncToStateInputs)
     }
 
     // update chat list of current conversation
@@ -232,14 +234,13 @@ const Main: FC<IMainProps> = () => {
     // if new chat is already exist, do not create new chat
     if (conversationList.some((item) => item.id === "-1")) return;
 
-    setConversationList(
-      produce(conversationList, (draft) => {
-        draft.unshift({
-          id: "-1",
-          name: t("app.chat.newChatDefaultName"),
-          inputs: newConversationInputs,
-          introduction: conversationIntroduction,
-        });
+    setConversationList(produce(conversationList, (draft) => {
+      draft.unshift({
+        id: '-1',
+        name: t('app.chat.newChatDefaultName'),
+        inputs: newConversationInputs,
+        introduction: conversationIntroduction,
+        suggested_questions: suggestedQuestions,
       })
     );
   };
@@ -268,9 +269,10 @@ const Main: FC<IMainProps> = () => {
       isAnswer: true,
       feedbackDisabled: true,
       isOpeningStatement: isShowPrompt,
-      suggestedQuestions,
-    };
-    if (calculatedIntroduction) return [openStatement];
+      suggestedQuestions: suggestedQuestions,
+    }
+    if (calculatedIntroduction)
+      return [openStatement]
 
     return [];
   };
@@ -288,66 +290,34 @@ const Main: FC<IMainProps> = () => {
     }
     (async () => {
       try {
-        if (
-          !fetchedDataRef.current.conversationData ||
-          !fetchedDataRef.current.appParams ||
-          !fetchedDataRef.current.precinctNames
-        ) {
-          const [conversationData, appParams, precinctNames] =
-            await Promise.all([
-              fetchConversations(),
-              fetchAppParams(),
-              fetchAllProjectName(token || ""),
-            ]);
-          fetchedDataRef.current = {
-            conversationData,
-            appParams,
-            precinctNames,
-          };
-        }
-        const { conversationData, appParams, precinctNames } =
-          fetchedDataRef.current;
+        const [conversationData, appParams] = await Promise.all([fetchConversations(), fetchAppParams()])
         // handle current conversation id
-        const { data: conversations, error } = conversationData as {
-          data: ConversationItem[];
-          error: string;
-        };
+        const { data: conversations, error } = conversationData as { data: ConversationItem[]; error: string }
         if (error) {
-          Toast.notify({ type: "error", message: error });
-          throw new Error(error);
-          return;
+          Toast.notify({ type: 'error', message: error })
+          throw new Error(error)
+          return
         }
-        const _conversationId = getConversationIdFromStorage(APP_ID);
-        const isNotNewConversation = conversations.some(
-          (item) => item.id === _conversationId
-        );
+        const _conversationId = getConversationIdFromStorage(APP_ID)
+        const currentConversation = conversations.find(item => item.id === _conversationId)
+        const isNotNewConversation = !!currentConversation
 
         // fetch new conversation info
-        const {
-          user_input_form,
-          opening_statement: introduction,
-          file_upload,
-          system_parameters,
-          suggested_questions,
-          suggested_questions_after_answer,
-        } = appParams;
-
-        const repSuggested_questions = replaceArrText(
-          suggested_questions,
-          precinctNames
-        );
-        setSuggestedQuestions(repSuggested_questions);
-
-        setSuggested(suggested_questions_after_answer.enabled);
-
-        setLocaleOnClient(APP_INFO.default_language, true);
-
+        const { user_input_form, opening_statement: introduction, file_upload, system_parameters, suggested_questions = [] }: any = appParams
+        setLocaleOnClient(APP_INFO.default_language, true)
         setNewConversationInfo({
           name: t("app.chat.newChatDefaultName"),
           introduction,
-        });
-        const prompt_variables =
-          userInputsFormToPromptVariables(user_input_form);
+          suggested_questions
+        })
+        if (isNotNewConversation) {
+          setExistConversationInfo({
+            name: currentConversation.name || t('app.chat.newChatDefaultName'),
+            introduction,
+            suggested_questions
+          })
+        }
+        const prompt_variables = userInputsFormToPromptVariables(user_input_form)
         setPromptConfig({
           prompt_template: promptTemplate,
           prompt_variables,
@@ -443,13 +413,37 @@ const Main: FC<IMainProps> = () => {
     setChatList(newListWithAnswer);
   };
 
+  const transformToServerFile = (fileItem: any) => {
+    return {
+      type: 'image',
+      transfer_method: fileItem.transferMethod,
+      url: fileItem.url,
+      upload_file_id: fileItem.id,
+    }
+  }
+
   const handleSend = async (message: string, files?: VisionFile[]) => {
     if (isResponding) {
       notify({ type: "info", message: t("app.errorMessage.waitForResponse") });
       return;
     }
+    const toServerInputs: Record<string, any> = {}
+    if (currInputs) {
+      Object.keys(currInputs).forEach((key) => {
+        const value = currInputs[key]
+        if (value.supportFileType)
+          toServerInputs[key] = transformToServerFile(value)
+
+        else if (value[0]?.supportFileType)
+          toServerInputs[key] = value.map((item: any) => transformToServerFile(item))
+
+        else
+          toServerInputs[key] = value
+      })
+    }
+
     const data: Record<string, any> = {
-      inputs: currInputs,
+      inputs: toServerInputs,
       query: message,
       conversation_id: isNewConversation ? null : currConversationId,
     };

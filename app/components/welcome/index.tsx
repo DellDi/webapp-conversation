@@ -3,6 +3,7 @@ import type { FC } from "react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TemplateVarPanel, { PanelTitle, VarOpBtnGroup } from "../value-panel";
+import FileUploaderInAttachmentWrapper from '../base/file-uploader-in-attachment'
 import s from "./style.module.css";
 import {
   AppInfoComp,
@@ -47,8 +48,14 @@ const Welcome: FC<IWelcomeProps> = ({
   onInputsChange,
 }) => {
   const { userName } = getCustomUrlParams();
-  const { t } = useTranslation();
   const translateName = useTranslationName();
+
+  const { t } = useTranslation()
+  const hasVar = promptConfig.prompt_variables.length > 0
+  const [isFold, setIsFold] = useState<boolean>(true)
+  const [inputs, setInputs] = useState<Record<string, any>>((() => {
+    if (hasSetInputs)
+      return savedInputs
 
   const hasVar = promptConfig.prompt_variables.length > 0;
   const [isFold, setIsFold] = useState<boolean>(true);
@@ -193,6 +200,41 @@ const Welcome: FC<IWelcomeProps> = ({
                 }}
               />
             )}
+
+            {
+              item.type === 'file' && (
+                <FileUploaderInAttachmentWrapper
+                  fileConfig={{
+                    allowed_file_types: item.allowed_file_types,
+                    allowed_file_extensions: item.allowed_file_extensions,
+                    allowed_file_upload_methods: item.allowed_file_upload_methods!,
+                    number_limits: 1,
+                    fileUploadConfig: {} as any,
+                  }}
+                  onChange={(files) => {
+                    setInputs({ ...inputs, [item.key]: files[0] })
+                  }}
+                  value={inputs?.[item.key] || []}
+                />
+              )
+            }
+            {
+              item.type === 'file-list' && (
+                <FileUploaderInAttachmentWrapper
+                  fileConfig={{
+                    allowed_file_types: item.allowed_file_types,
+                    allowed_file_extensions: item.allowed_file_extensions,
+                    allowed_file_upload_methods: item.allowed_file_upload_methods!,
+                    number_limits: item.max_length,
+                    fileUploadConfig: {} as any,
+                  }}
+                  onChange={(files) => {
+                    setInputs({ ...inputs, [item.key]: files })
+                  }}
+                  value={inputs?.[item.key] || []}
+                />
+              )
+            }
           </div>
         ))}
       </div>

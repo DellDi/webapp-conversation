@@ -12,6 +12,7 @@ import { randomString } from '@/utils/string'
 import type { ChatItem, MessageRating, VisionFile } from '@/types/app'
 import Tooltip from '@/app/components/base/tooltip'
 import { Markdown } from '@/app/components/base/markdown'
+import Button from '@/app/components/base/button'
 import type { Emoji } from '@/types/tools'
 import SuggestedQuestions from './suggested-questions'
 
@@ -130,6 +131,7 @@ type IAnswerProps = {
   onSend: OnSend
   isResponding?: boolean
   allToolIcons?: Record<string, string | Emoji>
+  suggestionClick?: (suggestion: string) => void
 }
 
 // The component needs to maintain its own state to control whether to display input component
@@ -140,8 +142,9 @@ const Answer: FC<IAnswerProps> = ({
   onSend,
   isResponding,
   allToolIcons,
+  suggestionClick = () => { },
 }) => {
-  const { id, content, feedback, agent_thoughts, workflowProcess } = item
+  const { id, content, feedback, agent_thoughts, workflowProcess, suggestedQuestions = [] } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
 
   const { t } = useTranslation()
@@ -302,7 +305,28 @@ const Answer: FC<IAnswerProps> = ({
               ) : (
                 <Markdown content={content} />
               )}
-              <SuggestedQuestions item={item} onSend={onSend} />
+              {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
+                ? (
+                  <div className='flex items-center justify-center w-6 h-5'>
+                    <LoadingAnim type='text' />
+                  </div>
+                )
+                : (isAgentMode
+                  ? agentModeAnswer
+                  : (
+                    <Markdown content={content} />
+                  ))}
+              {suggestedQuestions.length > 0 && (
+                <div className='mt-3'>
+                  <div className='flex gap-1 mt-1 flex-wrap'>
+                    {suggestedQuestions.map((suggestion, index) => (
+                      <div key={index} className='flex items-center gap-1'>
+                        <Button className='text-sm' type='link' onClick={() => suggestionClick(suggestion)}>{suggestion}</Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="absolute top-[-14px] right-[-14px] flex flex-row justify-end gap-1">
               {!feedbackDisabled &&
