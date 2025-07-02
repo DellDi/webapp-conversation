@@ -242,13 +242,9 @@ const Main: FC<IMainProps> = () => {
         introduction: conversationIntroduction,
         suggested_questions: suggestedQuestions,
       })
-    );
+    }))
   };
 
-  const { token, userName } = getCustomUrlParams();
-  // 新增建议功能
-  const [hasSuggested, setSuggested, getSuggested] = useGetState(false);
-  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   // sometime introduction is not applied to state
   const generateNewChatListWithOpenStatement = (
     introduction?: string,
