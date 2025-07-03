@@ -13,17 +13,19 @@ import {
   atelierHeathLight,
 } from 'react-syntax-highlighter/dist/esm/styles/hljs'
 import type { IChartType } from "../chart";
-import { BarChart, LineChart, PieChart } from "../chart";
-import { Component, memo, useMemo, useState } from "react";
+import { BarChart, LineChart, PieChart, CardChart } from "../chart";
+import { Component, memo, useMemo, useState, useCallback } from "react";
 import { useTheme } from "ahooks";
 import { Theme } from "@/types/app";
 import Flowchart from "@/app/components/base/mermaid";
 import SVGBtn from "@/app/components/base/svg";
 import ActionButton from "@/app/components/base/action-button";
+import Button from "@/app/components/base/button";
 import CopyIcon from "@/app/components/base/copy-icon";
 import ThinkBlock from "@/app/components/base/markdown-blocks/think-block";
 import TableComponents from "@/app/components/base/markdown-blocks/table";
 
+// followQuestions handled above
 // Available language https://github.com/react-syntax-highlighter/react-syntax-highlighter/blob/master/AVAILABLE_LANGUAGES_HLJS.MD
 const capitalizationLanguageNameMap: Record<string, string> = {
   sql: "SQL",
@@ -77,7 +79,7 @@ const CodeBlock: any = memo(
       if (language === "echarts") {
         try {
           return JSON.parse(String(children).replace(/\n$/, ""));
-        } catch (error) {}
+        } catch (error) { }
       }
       return JSON.parse(
         '{"title":{"text":"ECharts error - Wrong JSON format."}}'
@@ -98,7 +100,7 @@ const CodeBlock: any = memo(
             }}
           >
             <ErrorBoundary>
-              <ReactEcharts option={chartData} style={{ minWidth: "700px" }} />
+              <ReactEcharts option={chartData} style={{ minWidth: "375px" }} />
             </ErrorBoundary>
           </div>
         );
@@ -152,121 +154,114 @@ const CodeBlock: any = memo(
 );
 CodeBlock.displayName = "CodeBlock";
 
-export function Markdown({ content }: { content: string }) {
-  let latexContent = flow([preprocessThinkTag])(content);
-  
-  let isChartRender;
-  let jsonRes = {
-    chartType: "line",
-    targetName: "",
-    precinctName: "",
-    data: [
-      {
-        name: "新安明珠",
-        value: 1000.22,
-        currentDate: "2024",
-      },
-    ],
-  };
-  let chartStr, mkStr;
-  const contentArr = latexContent.split("---图表信息如下---");
-  if (contentArr.length > 1) {
-    mkStr = contentArr[0];
-    chartStr = contentArr[1];
-  } else {
-    chartStr = contentArr[0];
-  }
-  try {
-    jsonRes = JSON.parse(chartStr);
-    isChartRender = true;
-  } catch (error) {
-    isChartRender = false;
-    mkStr = latexContent;
-  }
-  const data = jsonRes.data;
-  const precinctName = jsonRes.precinctName;
+export function Markdown({ content, onFollowQuestion }: { content: string; onFollowQuestion?: (q: string) => void }) {
+  const latexContent = flow([preprocessThinkTag])(content);
+
+  /* -------------------------- stable renderer -------------------------- */
+  const codeRenderer = useCallback(({ inline, children, ...props }: any) => {
+    const languageMatch = /language-(\w+)/.exec(props.className || '');
+
+    if (!inline && languageMatch?.[1] === 'json') {
+      let parsed: any;
+      try {
+        parsed = JSON.parse(String(children).replace(/\n$/, ''));
+        parsed = parsed.result ?? parsed;
+      } catch {
+        // fallthrough
+      }
+      const param = parsed?.bizInfo?.param;
+      let ChartComponent: JSX.Element | null = null;
+      if (param?.chartData && param?.chartType) {
+        const Comp = {
+          line: LineChart,
+          bar: BarChart,
+          pie: PieChart,
+          card: CardChart,
+        }[param.chartType as IChartType];
+        ChartComponent = Comp ? (
+          <Comp
+            chartData={{ data: param.chartData }}
+            basicInfo={{ title: '' }}
+            chartType={param.chartType as IChartType}
+          />
+        ) : null;
+      }
+      const fq = parsed?.followQuestions;
+      const FollowQuestionsComponent = fq?.list?.length ? (
+        <div className="mt-3">
+          {fq.title && <div className="text-sm text-gray-900 mb-1">{fq.title}</div>}
+          <div className="flex gap-1 flex-wrap">
+            {fq.list.map((q: string, idx: number) => (
+              <Button key={idx} className="text-sm" type="link" onClick={() => onFollowQuestion?.(q)}>
+                {q}
+              </Button>
+            ))}
+          </div>
+        </div>
+      ) : null;
+
+      if (ChartComponent || FollowQuestionsComponent) {
+        return (
+          <div>
+            {ChartComponent}
+            {FollowQuestionsComponent}
+          </div>
+        );
+      }
+    }
+
+    if (!inline && languageMatch) {
+      return (
+        <SyntaxHighlighter
+          {...props}
+          children={String(children).replace(/\n$/, '')}
+          style={atelierHeathLight}
+          language={languageMatch[1]}
+          showLineNumbers
+          PreTag="div"
+        />
+      );
+    }
+    return <code {...props} className={props.className}>{children}</code>;
+  }, [onFollowQuestion]);
+
+  const remarkPluginsMemo = useMemo(() => [RemarkGfm, [RemarkMath, { singleDollarTextMath: false }], RemarkBreaks] as const, []);
+
+  const rehypePluginsMemo = useMemo(() => [
+    RehypeKatex,
+    RehypeRaw as any,
+    () => (tree: any) => {
+      const iterate = (node: any) => {
+        if (node.type === 'element' && node.properties?.ref) delete node.properties.ref;
+        if (node.type === 'element' && !/^[a-z][a-z0-9]*$/i.test(node.tagName)) {
+          node.type = 'text';
+          node.value = `<${node.tagName}`;
+        }
+        if (node.children) node.children.forEach(iterate);
+      };
+      tree.children.forEach(iterate);
+    },
+  ] as const, []);
+
+  const componentsMemo = useMemo(() => ({
+    table: TableComponents.table,
+    thead: TableComponents.thead,
+    tr: TableComponents.tr,
+    th: TableComponents.th,
+    td: TableComponents.td,
+    code: codeRenderer,
+    details: ThinkBlock,
+  }), [codeRenderer]);
+
   return (
     <div className="markdown-body">
-      {mkStr && (
-        <ReactMarkdown
-          remarkPlugins={[
-            RemarkGfm,
-            [RemarkMath, { singleDollarTextMath: false }],
-            RemarkBreaks,
-          ]}
-          rehypePlugins={[
-            RehypeKatex,
-            RehypeRaw as any,
-            // The Rehype plug-in is used to remove the ref attribute of an element
-            () => {
-              return (tree) => {
-                const iterate = (node: any) => {
-                  if (node.type === "element" && node.properties?.ref)
-                    delete node.properties.ref;
-
-                  if (
-                    node.type === "element" &&
-                    !/^[a-z][a-z0-9]*$/i.test(node.tagName)
-                  ) {
-                    node.type = "text";
-                    node.value = `<${node.tagName}`;
-                  }
-
-                  if (node.children) node.children.forEach(iterate);
-                };
-                tree.children.forEach(iterate);
-              };
-            },
-          ]}
-          components={{
-            table: TableComponents.table,
-            thead: TableComponents.thead,
-            tr: TableComponents.tr,
-            th: TableComponents.th,
-            td: TableComponents.td,
-            code({ children, ...props }) {
-              const match = /language-(\w+)/.exec(props.className || "");
-              return !props.inline && match ? (
-                <SyntaxHighlighter
-                  {...props}
-                  children={String(children).replace(/\n$/, "")}
-                  style={atelierHeathLight}
-                  language={match[1]}
-                  showLineNumbers
-                  PreTag="div"
-                />
-              ) : (
-                <code {...props} className={props.className}>
-                  {children}
-                </code>
-              );
-            },
-            details: ThinkBlock,
-          }}
-        >
-          {mkStr}
-        </ReactMarkdown>
-      )}
-
-      {isChartRender && (
-        <div className="grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-2 bg-white">
-          {(() => {
-            const ChartComponent = {
-              line: LineChart,
-              bar: BarChart,
-              pie: PieChart,
-            }[jsonRes.chartType];
-
-            return ChartComponent ? (
-              <ChartComponent
-                chartData={{ data }}
-                basicInfo={{ title: `【${precinctName}】` }}
-                chartType={jsonRes.chartType as IChartType}
-              />
-            ) : null;
-          })()}
-        </div>
-      )}
+      <ReactMarkdown
+        remarkPlugins={remarkPluginsMemo as any}
+        rehypePlugins={rehypePluginsMemo as any}
+        components={componentsMemo as any}
+      >
+        {latexContent}
+      </ReactMarkdown>
     </div>
   );
 }

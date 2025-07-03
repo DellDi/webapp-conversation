@@ -26,9 +26,8 @@ const OperationBtn = ({
   className?: string
 }) => (
   <div
-    className={`relative box-border flex items-center justify-center h-7 w-7 p-0.5 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800 ${
-      className ?? ''
-    }`}
+    className={`relative box-border flex items-center justify-center h-7 w-7 p-0.5 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800 ${className ?? ''
+      }`}
     style={{
       boxShadow:
         '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)',
@@ -290,21 +289,6 @@ const Answer: FC<IAnswerProps> = ({
               {/* {workflowProcess && (
                 <WorkflowProcess data={workflowProcess} hideInfo />
               )} */}
-              {isResponding &&
-              (isAgentMode
-                ? !content &&
-                  (agent_thoughts || []).filter(
-                    (item) => !!item.thought || !!item.tool
-                  ).length === 0
-                : !content) ? (
-                <div className="flex items-center justify-center w-6 h-5">
-                  <LoadingAnim type="text" />
-                </div>
-              ) : isAgentMode ? (
-                agentModeAnswer
-              ) : (
-                <Markdown content={content} />
-              )}
               {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
                 ? (
                   <div className='flex items-center justify-center w-6 h-5'>
@@ -314,7 +298,7 @@ const Answer: FC<IAnswerProps> = ({
                 : (isAgentMode
                   ? agentModeAnswer
                   : (
-                    <Markdown content={content} />
+                    <Markdown content={content} onFollowQuestion={suggestionClick} />
                   ))}
               {suggestedQuestions.length > 0 && (
                 <div className='mt-3'>

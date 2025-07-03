@@ -46,17 +46,11 @@ const Welcome: FC<IWelcomeProps> = ({
   canEditInputs,
   savedInputs,
   onInputsChange,
-}) => {
+}): JSX.Element => {
   const { userName } = getCustomUrlParams();
   const translateName = useTranslationName();
 
-  const { t } = useTranslation()
-  const hasVar = promptConfig.prompt_variables.length > 0
-  const [isFold, setIsFold] = useState<boolean>(true)
-  const [inputs, setInputs] = useState<Record<string, any>>((() => {
-    if (hasSetInputs)
-      return savedInputs
-
+  const { t } = useTranslation();
   const hasVar = promptConfig.prompt_variables.length > 0;
   const [isFold, setIsFold] = useState<boolean>(true);
   const [inputs, setInputs] = useState<Record<string, any>>(
@@ -128,22 +122,37 @@ const Welcome: FC<IWelcomeProps> = ({
     });
   })();
 
-  const renderHeader = () => {
+  const renderHeader = (): JSX.Element | null => {
+    if (isPublicVersion) return null;
+    const handleSidebarClick = (): void => {
+      if (onShowSideBar) onShowSideBar();
+    };
+
+    const handleEditClick = (): void => {
+      // TODO: Implement edit functionality
+      console.log('Edit button clicked');
+    };
+
     return (
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-12 tablet:h-16 px-4">
-        <div className="text-gray-900 w-4/5 truncate">
-          {translateName(conversationName)}
-        </div>
-        <div
-          className="flex items-center justify-center h-8 w-8 cursor-pointer"
-          onClick={() => onShowSideBar?.()}
-        >
-          <Bars3Icon className="h-4 w-4 text-gray-500" />
+      <div className="absolute left-0 top-0 right-0 flex items-center justify-between border-b border-gray-100 mobile:h-14 tablet:h-[52px] px-4">
+        <div className="text-gray-900">{translateName(conversationName)}</div>
+        <div className="flex items-center">
+          <div className="flex items-center px-1">
+            <EditBtn onClick={handleEditClick} />
+          </div>
+          <div className="flex items-center px-1">
+            <Bars3Icon
+              className="w-4 h-4 text-gray-500 cursor-pointer"
+              onClick={handleSidebarClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleSidebarClick()}
+            />
+          </div>
         </div>
       </div>
     );
   };
-
   const renderInputs = () => {
     return (
       <div className="space-y-3">
@@ -376,11 +385,11 @@ const Welcome: FC<IWelcomeProps> = ({
     );
   };
 
-  const renderHasSetInputs = () => {
+  const renderHasSetInputs = (): JSX.Element | null => {
     if ((!isPublicVersion && !canEditInputs) || !hasVar) return null;
 
     return (
-      <div className="pt-[88px] mb-5">
+      <div className="pt-[10px] mb-5">
         {isPublicVersion
           ? renderHasSetInputsPublic()
           : renderHasSetInputsPrivate()}
@@ -431,4 +440,7 @@ const Welcome: FC<IWelcomeProps> = ({
   );
 };
 
-export default React.memo(Welcome);
+const MemoizedWelcome = React.memo(Welcome);
+MemoizedWelcome.displayName = 'Welcome';
+
+export default MemoizedWelcome;

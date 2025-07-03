@@ -5,6 +5,7 @@ import ReactECharts from 'echarts-for-react'
 import { groupBy } from 'lodash-es'
 import type { FC } from 'react'
 import { useEffect, useRef, useState } from 'react'
+import CardChartComponent from './card-chart'
 
 const valueFormatter = (v: string | number) => v
 
@@ -14,7 +15,7 @@ const COMMON_COLOR_MAP = {
   splitLineDark: '#E5E7EB',
 }
 
-export type IChartType = 'line' | 'bar' | 'pie'
+export type IChartType = 'line' | 'bar' | 'pie' | 'card'
 
 export type IChartProps = {
   className?: string
@@ -149,7 +150,7 @@ const Chart: FC<IChartProps> = ({
     },
     series: [
       {
-        type: chartType,
+        type: chartType as 'line' | 'bar' | 'pie',
         showSymbol: true,
         labelLine: {
           length: -10,
@@ -274,3 +275,5 @@ export const PieChart: FC<IChartProps> = ({
     {...(noDataFlag ? { yMax: 500 } : {})}
   />
 }
+
+export const CardChart = CardChartComponent
